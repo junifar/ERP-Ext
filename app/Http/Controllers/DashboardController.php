@@ -2,25 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use App\DataTables\SaleOrdersDataTable;
-use App\SaleOrder;
+
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\DataTables;
 
 class DashboardController extends Controller
 {
-    public function index(SaleOrdersDataTable $dataTable)
+    public function index()
     {
-//        return SaleOrder::All();
-//        return $dataTable->render('dashboard.index');
-//        return DataTables::of(SaleOrder::query())->make(true);
         return view('dashboard.index');
     }
 
     public function data()
     {
-//        return SaleOrder::with('partner')->take(10)->get();
-        return DataTables::of(SaleOrder::query()->with('partner')->get(['client_order_ref', 'partner.id']))->make(true);
+//        $datas = SaleOrder::with('partner:id,name')
+//            ->select('sale_order.client_order_ref', 'sale_order.partner_id');
+
+        $datas = DB::table('sale_order')
+            ->leftJoin('res_partner', 'sale_order.partner_id' , '=', 'res_partner.id')
+            ->select('sale_order.id','client_order_ref',
+                'sale_order.name as no_so', 'amount_total',
+                'sale_order.date_order','res_partner.name');
+
+        return DataTables::of($datas)
+            ->addColumn('action', '<a href="\SalesOrder\{{$id}}" class="btn btn-primary">Detail</a>')
+            ->make(true);
     }
 
     public function create()
