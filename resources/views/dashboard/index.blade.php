@@ -181,17 +181,23 @@
 
         $(document).ready(function() {
             $('#sale_orders-table').DataTable({
-                processing: true,
-                serverSide: true,
-                responsive: true,
-                scrollX: true,
+                processing  : true,
+                serverSide  : true,
+                responsive  : true,
+                scrollX     : true,
+                lengthChange: false,
+                info        : true,
+                autoWidth   : false,
+                searching   : false,
+                autoFill    : true,
                 columnDefs: [
-                    { targets: [3], className: 'dt-body-right' }
+                    // { targets: [3], className: 'dt-body-right' }
+                    { targets: [3], className: 'text-right' }
                 ],
                 ajax:$.fn.dataTable.pipeline( {
                     url: '{!! route('dashboard.data') !!}',
                     pages: 5 // number of pages to cache
-                } ),
+                }),
                 {{--ajax: '{!! route('dashboard.data') !!}',--}}
                 columns: [
                     { data: 'no_so', name: 'sale_order.name' },

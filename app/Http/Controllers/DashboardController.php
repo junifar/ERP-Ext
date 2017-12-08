@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Yajra\DataTables\DataTables;
 
 class DashboardController extends Controller
@@ -14,7 +15,7 @@ class DashboardController extends Controller
         return view('dashboard.index');
     }
 
-    public function data()
+    public function data(Request $request)
     {
 //        $datas = SaleOrder::with('partner:id,name')
 //            ->select('sale_order.client_order_ref', 'sale_order.partner_id');
@@ -27,6 +28,13 @@ class DashboardController extends Controller
 
         return DataTables::of($datas)
             ->addColumn('action', '<a href="\SalesOrder\{{$id}}" class="btn btn-primary">Detail</a>')
+            ->filter(function($instance) use ($request){
+                if ($request->has('name')) {
+                    $instance->collection = $instance->collection->filter(function ($row) use ($request) {
+                        return Str::contains($row['name'], $request->get('name')) ? true : false;
+                    });
+                }
+            })
             ->make(true);
     }
 
