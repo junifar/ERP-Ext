@@ -21,7 +21,7 @@
         <!-- DataTables -->
         <link rel="stylesheet" href="{{asset('bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css')}}">
 
-        <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.1/css/responsive.bootstrap.min.css">
+        {{--<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.1/css/responsive.bootstrap.min.css">--}}
 
         <!-- Theme style -->
         <link rel="stylesheet" href="{{asset('bower_components/admin-lte/dist/css/AdminLTE.min.css')}}">
@@ -31,6 +31,10 @@
         <!-- Pace style -->
         {{--<link rel="stylesheet" href="{{asset('bower_components/pace/themes/green/pace.min.css')}}">--}}
         <link rel="stylesheet" href="{{asset('bower_components/pace/themes/green/pace-theme-minimal.css')}}">
+
+        {{--izimodal--}}
+        <link rel="stylesheet" href="{{asset('bower_components/izimodal/css/iziModal.min.css')}}">
+
         <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
         <!--[if lt IE 9]>
@@ -110,7 +114,7 @@
                                 </span>
                             </a>
                             <ul class="treeview-menu">
-                                <li><a href="{!! route('dashboard'); !!}"><i class="fa fa-th-large"></i> Dashboard</a></li>
+                                <li><a href="{!! route('dashboard'); !!}"><i class="fa fa-th-large"></i> Sales Order</a></li>
                                 </li>
                             </ul>
                         </li>
@@ -171,8 +175,8 @@
         <script src="{{asset('bower_components/datatables.net/js/jquery.dataTables.min.js')}}"></script>
         <script src="{{asset('bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js')}}"></script>
 
-        <script src="https://cdn.datatables.net/responsive/2.2.1/js/dataTables.responsive.min.js"></script>
-        <script src="https://cdn.datatables.net/responsive/2.2.1/js/responsive.bootstrap.min.js"></script>
+        {{--<script src="https://cdn.datatables.net/responsive/2.2.1/js/dataTables.responsive.min.js"></script>--}}
+        {{--<script src="https://cdn.datatables.net/responsive/2.2.1/js/responsive.bootstrap.min.js"></script>--}}
 
 
         <!-- PACE -->
@@ -196,6 +200,9 @@
         <!-- AdminLTE for demo purposes -->
 
         <script src="{{asset('bower_components/admin-lte/dist/js/demo.js')}}"></script>
+
+        {{--izimodal--}}
+        <script src="{{asset('bower_components/izimodal/js/iziModal.min.js')}}"></script>
 
         {{--custom module search datatables--}}
         <script src="{{asset('js/pipeline.js')}}"></script>

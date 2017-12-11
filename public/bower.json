@@ -9,6 +9,7 @@
   "license": "MIT",
   "dependencies": {
     "izimodal": "^1.5.1",
-    "admin-lte": "adminlte#^2.4.2"
+    "admin-lte": "adminlte#^2.4.2",
+    "featherlight": "^1.7.11"
   }
 }

@@ -5,6 +5,7 @@
 @endsection
 
 @section('content-header')
+    <link rel="stylesheet" href="{{asset('bower_components/featherlight/release/featherlight.min.css')}}">
 
 @endsection
 
@@ -36,6 +37,7 @@
                         </div>
                     </div>
                     <div>
+                        <div id="modal-iframe" data-iziModal-title="Sales Order Information"></div>
                         <br/>
                     </div>
                     <div class="row">
@@ -64,26 +66,35 @@
 
 @push('scripts')
 
+    <script src="{{asset('bower_components/featherlight/release/featherlight.min.js')}}" charset="utf-8"></script>
     <script>
         $(document).ready(function() {
+            // $('#modal').iziModal();
+            // $(document).on('click', '.trigger', function (event) {
+            //     console.log('SAmple');
+            //     $('#modal').iziModal('open');
+            //     event.preventDefault();
+            // });
+
 
             var oTable = $('#sale_orders-table').DataTable({
                 processing  : true,
                 serverSide  : true,
-                // responsive  : true,
-                responsive: {
-                    details: {
-                            display: $.fn.dataTable.Responsive.display.modal( {
-                                header: function (row) {
-                                    var data = row.data();
-                                    return 'Details for '+data[0]+' '+data[1];
-                                }
-                            } ),
-                                renderer: $.fn.dataTable.Responsive.renderer.tableAll( {
-                                tableClass: 'table'
-                            } )
-                        }
-                    },
+                responsive  : true,
+                // responsive: {
+                //     details:
+                //         {
+                //             display: $.fn.dataTable.Responsive.display.modal( {
+                //                 header: function (row) {
+                //                     var data = row.data();
+                //                     return 'Details for '+data[0]+' '+data[1];
+                //                 }
+                //             } ),
+                //             renderer: $.fn.dataTable.Responsive.renderer.tableAll( {
+                //                 tableClass: 'table'
+                //             } )
+                //         }
+                //     },
                 scrollX     : true,
                 lengthChange: false,
                 info        : true,
@@ -119,6 +130,21 @@
                 e.preventDefault();
             });
 
+            $(document).on('click', '.trigger', function (event) {
+                event.preventDefault();
+                // $('#modal-iframe').iziModal('open')
+                // or
+                $('#modal-iframe').iziModal('open', event); // Use "event" to get URL href
+                // event.preventDefault();
+            })
+
+            $("#modal-iframe").iziModal({
+                iframe: true,
+                iframeHeight: 500,
+                headerColor: '#00a65a'
+            });
+
         });
     </script>
+
 @endpush
