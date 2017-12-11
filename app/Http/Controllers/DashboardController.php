@@ -27,7 +27,7 @@ class DashboardController extends Controller
             ->orWhere('client_order_ref', 'ilike', "%{$request->get('name')}%");
 
         return DataTables::of($datas)
-            ->addColumn('action', '<a href="\SalesOrder\{{$id}}" class="btn btn-primary trigger">Detail</a>')
+            ->addColumn('action', '<a href="\sales_order\detail\{{$id}}" class="btn btn-primary trigger">Detail</a>')
 //            ->addColumn('action', '<a href="#" data-featherlight="\SalesOrder\{{$id}} .selector" class="btn btn-primary">Detail</a>')
             ->make(true);
     }
@@ -45,6 +45,7 @@ class DashboardController extends Controller
     public function show($id)
     {
         //
+        return $id;
     }
 
     public function edit($id)

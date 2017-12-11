@@ -69,32 +69,11 @@
     <script src="{{asset('bower_components/featherlight/release/featherlight.min.js')}}" charset="utf-8"></script>
     <script>
         $(document).ready(function() {
-            // $('#modal').iziModal();
-            // $(document).on('click', '.trigger', function (event) {
-            //     console.log('SAmple');
-            //     $('#modal').iziModal('open');
-            //     event.preventDefault();
-            // });
-
 
             var oTable = $('#sale_orders-table').DataTable({
                 processing  : true,
                 serverSide  : true,
                 responsive  : true,
-                // responsive: {
-                //     details:
-                //         {
-                //             display: $.fn.dataTable.Responsive.display.modal( {
-                //                 header: function (row) {
-                //                     var data = row.data();
-                //                     return 'Details for '+data[0]+' '+data[1];
-                //                 }
-                //             } ),
-                //             renderer: $.fn.dataTable.Responsive.renderer.tableAll( {
-                //                 tableClass: 'table'
-                //             } )
-                //         }
-                //     },
                 scrollX     : true,
                 lengthChange: false,
                 info        : true,
