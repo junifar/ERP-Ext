@@ -40,9 +40,10 @@
                     </div>
                     <div class="row">
                         <div class="col-md-12">
-                            <table class="table table-bordered" id="sale_orders-table">
+                            <table class="table table-bordered nowrap" id="sale_orders-table">
                                 <thead>
                                 <tr>
+                                    {{--<th></th>--}}
                                     <th>Nomor SO</th>
                                     <th>Nomor PO</th>
                                     <th>Customer</th>
@@ -63,13 +64,26 @@
 
 @push('scripts')
 
-    {{--{!! $dataTable->scripts() !!}--}}
     <script>
         $(document).ready(function() {
+
             var oTable = $('#sale_orders-table').DataTable({
                 processing  : true,
                 serverSide  : true,
-                responsive  : true,
+                // responsive  : true,
+                responsive: {
+                    details: {
+                            display: $.fn.dataTable.Responsive.display.modal( {
+                                header: function (row) {
+                                    var data = row.data();
+                                    return 'Details for '+data[0]+' '+data[1];
+                                }
+                            } ),
+                                renderer: $.fn.dataTable.Responsive.renderer.tableAll( {
+                                tableClass: 'table'
+                            } )
+                        }
+                    },
                 scrollX     : true,
                 lengthChange: false,
                 info        : true,
@@ -89,6 +103,7 @@
                 }),
                 {{--ajax: '{!! route('dashboard.data') !!}',--}}
                 columns: [
+
                     { data: 'no_so', name: 'sale_order.name' },
                     { data: 'client_order_ref', name: 'client_order_ref' },
                     { data: 'name', name: 'name' },
@@ -103,6 +118,7 @@
                 oTable.draw();
                 e.preventDefault();
             });
+
         });
     </script>
 @endpush

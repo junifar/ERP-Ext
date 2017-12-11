@@ -1,0 +1,14 @@
+{
+  "name": "public",
+  "homepage": "https://github.com/junifar/ERP-Ext",
+  "authors": [
+    "junifar <junifar@gmail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "dependencies": {
+    "izimodal": "^1.5.1",
+    "admin-lte": "adminlte#^2.4.2"
+  }
+}
