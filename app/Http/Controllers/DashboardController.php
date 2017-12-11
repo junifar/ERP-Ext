@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+
 use Yajra\DataTables\DataTables;
 
 class DashboardController extends Controller
@@ -17,24 +17,17 @@ class DashboardController extends Controller
 
     public function data(Request $request)
     {
-//        $datas = SaleOrder::with('partner:id,name')
-//            ->select('sale_order.client_order_ref', 'sale_order.partner_id');
-
         $datas = DB::table('sale_order')
             ->leftJoin('res_partner', 'sale_order.partner_id' , '=', 'res_partner.id')
             ->select('sale_order.id','client_order_ref',
                 'sale_order.name as no_so', 'amount_total',
-                'sale_order.date_order','res_partner.name');
+                'sale_order.date_order','res_partner.name')
+            ->where('sale_order.name', 'ilike', "%{$request->get('name')}%")
+            ->orWhere('res_partner.name', 'ilike', "%{$request->get('name')}%")
+            ->orWhere('client_order_ref', 'ilike', "%{$request->get('name')}%");
 
         return DataTables::of($datas)
             ->addColumn('action', '<a href="\SalesOrder\{{$id}}" class="btn btn-primary">Detail</a>')
-            ->filter(function($instance) use ($request){
-                if ($request->has('name')) {
-                    $instance->collection = $instance->collection->filter(function ($row) use ($request) {
-                        return Str::contains($row['name'], $request->get('name')) ? true : false;
-                    });
-                }
-            })
             ->make(true);
     }
 

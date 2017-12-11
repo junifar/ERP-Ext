@@ -17,3 +17,4 @@ Route::get('/', function () {
 
 Route::get('/dashboard', 'DashboardController@index')->name('dashboard');
 Route::get('/dashboard/data', 'DashboardController@data')->name('dashboard.data');
+Route::post('/dashboard', 'DashboardController@index')->name('dashboard');

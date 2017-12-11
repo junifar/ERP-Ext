@@ -172,10 +172,16 @@
         <script src="{{asset('plugins/AdminLTE/bower_components/jquery-slimScroll/jquery.slimscroll.min.js')}}"></script>
         <!-- ChartJS 1.0.1 -->
         <script src="{{asset('plugins/AdminLTE/bower_components/chart.js/Chart.min.js')}}"></script>
+
         <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-{{--        <script src="{{asset('plugins/AdminLTE/dist/js/pages/dashboard2.js')}}"></script>--}}
+        {{--<script src="{{asset('plugins/AdminLTE/dist/js/pages/dashboard2.js')}}"></script>--}}
         <!-- AdminLTE for demo purposes -->
+
         <script src="{{asset('plugins/AdminLTE/dist/js/demo.js')}}"></script>
+
+        {{--custom module search datatables--}}
+        <script src="{{asset('js/pipeline.js')}}"></script>
+
         <script type="text/javascript">
             // To make Pace works on Ajax calls
             $(document).ajaxStart(function() { Pace.restart(); });
