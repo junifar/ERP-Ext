@@ -69,7 +69,6 @@
     <script src="{{asset('bower_components/featherlight/release/featherlight.min.js')}}" charset="utf-8"></script>
     <script>
         $(document).ready(function() {
-
             var oTable = $('#sale_orders-table').DataTable({
                 processing  : true,
                 serverSide  : true,
@@ -88,6 +87,7 @@
                     url: '{!! route('dashboard.data') !!}',
                     data: function(d){
                         d.name = $('input[name=name]').val();
+                        console.log($('input[name=name]').val());
                     },
                     pages: 5 // number of pages to cache
                 }),
@@ -115,7 +115,7 @@
                 // or
                 $('#modal-iframe').iziModal('open', event); // Use "event" to get URL href
                 // event.preventDefault();
-            })
+            });
 
             $("#modal-iframe").iziModal({
                 iframe: true,

@@ -31,10 +31,13 @@
                     </div>
                     <div class="row">
                         <div class="col-md-12">
-                            <table class="table table-bordered nowrap" id="site-table">
+                            <table class="table table-bordered nowrap" id="site_table">
                                 <thead>
                                 <tr>
                                     <th>Nama Site</th>
+                                    <th>Site Alias 1</th>
+                                    <th>Site Alias 2</th>
+                                    <th>Area</th>
                                     <th>Site ID Customer</th>
                                     <th>Action</th>
                                 </tr>
@@ -49,17 +52,19 @@
 @endsection
 
 @push('scripts')
+    {{--<script src="{{asset('js/pipeline.js')}}"></script>--}}
     <script>
         $(document).ready(function(){
-            var oTable = $('#site-table').dataTable({
-                processing      : true,
-                serverSide      : true,
-                responsive      : true,
-                lengthChange    : false,
-                info            : true,
-                autoWidth       : false,
-                searching       : false,
-                autofill        : true,
+            var oTable = $('#site_table').DataTable({
+                processing  : true,
+                serverSide  : true,
+                responsive  : true,
+                scrollX     : true,
+                lengthChange: false,
+                info        : true,
+                autoWidth   : false,
+                searching   : false,
+                autoFill    : true,
                 iDisplayLength  : 7,
                 ajax:$.fn.dataTable.pipeline( {
                     url: '{!! route('site.data') !!}',
@@ -70,8 +75,10 @@
                 }),
                 {{--ajax: '{!! route('dashboard.data') !!}',--}}
                 columns: [
-
                     { data: 'name', name: 'name' },
+                    { data: 'site_alias1', name: 'site_alias1' },
+                    { data: 'site_alias2', name: 'site_alias2' },
+                    { data: 'area_name', name: 'area_name' },
                     { data: 'site_id_customer', name: 'site_id_customer' },
                     { data: 'action', name: 'action' }
                 ]
@@ -81,6 +88,21 @@
                 oTable.clearPipeline();
                 oTable.draw();
                 e.preventDefault();
+            });
+
+            $(document).on('click', '.trigger', function (event) {
+                event.preventDefault();
+                // $('#modal-iframe').iziModal('open')
+                // or
+                $('#modal-iframe').iziModal('open', event); // Use "event" to get URL href
+                // event.preventDefault();
+            });
+
+            $("#modal-iframe").iziModal({
+                iframe          : true,
+                iframeHeight    : 500,
+                width           : 950,
+                headerColor     : '#00a65a'
             });
         })
     </script>
