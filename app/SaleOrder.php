@@ -12,4 +12,9 @@ class SaleOrder extends Model
     public function partner(){
         return $this->belongsTo('App\ResPartner', 'partner_id');
     }
+
+    public function sale_order_line(){
+        return $this->hasMany('App\SaleOrderLine','order_id');
+    }
+
 }

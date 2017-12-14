@@ -4,6 +4,28 @@
     Site Detail
 @endsection
 
+@push('css-head')
+    <link rel="stylesheet" href="{{asset('css/collapsible.css')}}" type="text/css"/>
+    <style type="text/css">
+        .collapse-custom .navbar-nav .col-width-1 {
+            min-width   : 170px;
+        }
+
+        .collapse-custom .navbar-nav .col-width-2 {
+            min-width   : 300px;
+        }
+
+        .collapse-custom .navbar-nav .col-width-3 {
+            min-width   : 120px;
+        }
+
+        .navbar-default {
+            background-color: #f8f8f8;
+            border-color: #b5b2b2;
+        }
+    </style>
+@endpush
+
 @section('content')
     <div class="box box-success">
         <div class="box-header with-border">
@@ -16,38 +38,47 @@
                     <input type="text" class="form-control" id="txtArea" placeholder="Area"
                            readonly="true" value="{{$data->area_name}}">
                 </div>
-
             </div>
             <section class="invoice">
                 <!-- Table row -->
                 <div class="row">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-condensed">
-                            <thead>
-                            <tr>
-                                <th>Site Type</th>
-                                <th>Nomor PO</th>
-                                <th>Nilai PO</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @foreach($data_po_header as $record_header)
-                                <tr>
-                                    <td>
-                                        {{$record_header->site_type}}
-                                        @if($record_header->work_category)
-                                            /{{$record_header->work_category}}
-                                        @endif
+                    <div class="col-md-12">
+                        <div class="row col-md-12">
+                            <div class="collapse-custom">
+                                <nav class="navbar navbar-default navbar-heading" role="navigation">
+                                    <div class="navbar-collapse">
+                                        <ul class="nav navbar-nav">
+                                            <li class="col-width-2"><a>Site Type</a></li>
+                                            <li class="col-width-1"><a>Nomor PO</a></li>
+                                            <li class="col-width-3"><a>Nilai PO</a></li>
+                                            <li class="col-width-3"><a>Total Penagihan</a></li>
+                                        </ul>
+                                    </div>
+                                </nav>
+                                @php
+                                    $sum_nilai_po = null;
+                                    $sum_tagihan = null;
+                                @endphp
+                                @foreach($data_po_header as $record_header)
+                                    <nav class="navbar navbar-default" role="navigation">
+                                        <div class="collapse navbar-collapse" id="navbar-po-header-{{$record_header->id}}" data-toggle="collapse" href="#collapse{{$record_header->id}}">
+                                            <ul class="nav navbar-nav">
+                                                <li class="col-width-2"><a>{{$record_header->site_type}}
+                                                        @if($record_header->work_category)
+                                                            /{{$record_header->work_category}}
+                                                        @endif
 
-                                        @if($record_header->work_description)
-                                            /{{$record_header->work_description}}
-                                        @endif
-                                    </td>
-                                    <td>{{$record_header->client_order_ref}}</td>
-                                    <td>{{number_format($record_header->price_unit * $record_header->product_uom_qty,2, ',', '.')}}</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="3">
+                                                        @if($record_header->work_description)
+                                                            /{{$record_header->work_description}}
+                                                        @endif</a></li>
+                                                <li class="col-width-1"><a>{{$record_header->client_order_ref}}</a></li>
+                                                <li class="col-width-3" style="text-align:right;"><a>{{number_format($record_header->price_unit * $record_header->product_uom_qty,2, ',', '.')}}</a></li>
+                                                <li class="col-width-3" style="text-align:right;"><a>{{number_format($record_header->subtotal,2, ',', '.')}}</a></li>
+                                            </ul>
+                                        </div>
+                                    </nav>
+                                    <div id="collapse{{$record_header->id}}" class="collapse" data-parent="navbar-po-header-{{$record_header->id}}">
+                                        {{--<div class="panel-body">--}}
                                         <table class="table table-striped table-bordered table-condensed">
                                             <thead>
                                             <tr>
@@ -60,90 +91,45 @@
                                             </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach($data_po as $record)
-                                                    @if($record->id == $record_header->id)
-                                                        <tr>
-                                                            <td>{{$record->no_invoice}}</td>
-                                                            <td class="pull-right">{{number_format($record->amount_total, 2, ',', '.')}}</td>
-                                                            <th>{Budget}</th>
-                                                            <th>{Realisasi}</th>
-                                                            <th>{Laba/Rugi}</th>
-                                                            <th>{Status INV}</th>
-                                                        </tr>
-                                                    @endif
-                                                @endforeach
+                                            @foreach($data_po as $record)
+                                                @if($record->id == $record_header->id)
+                                                    <tr>
+                                                        <td>{{$record->no_invoice}}</td>
+                                                        <td class="pull-right">{{number_format($record->amount_total, 2, ',', '.')}}</td>
+                                                        <th>{Budget}</th>
+                                                        <th>{Realisasi}</th>
+                                                        <th>{Laba/Rugi}</th>
+                                                        <th>{Status INV}</th>
+                                                    </tr>
+                                                @endif
+                                            @endforeach
                                             </tbody>
                                         </table>
-                                    </td>
-                                </tr>
-                            @endforeach
-
-                            {{--@php--}}
-                                {{--$site_type = null;--}}
-                                {{--$work_category = null;--}}
-                                {{--$work_description = null;--}}
-                                {{--$client_order_ref = null;--}}
-                                {{--$price_unit = null;--}}
-                                {{--$sum_price_unit = null;--}}
-                                {{--$sum_amount_total = null;--}}
-                            {{--@endphp--}}
-                            {{--@foreach($data_po as $record)--}}
-                            {{--<tr>--}}
-                                {{--@if($site_type != $record->site_type)--}}
-                                    {{--<td>--}}
-                                        {{--{{$record->site_type}}--}}
-                                        {{--@if($record->work_category)--}}
-                                        {{--/{{$record->work_category}}--}}
-                                        {{--@endif--}}
-
-                                        {{--@if($record->work_description)--}}
-                                        {{--/{{$record->work_description}}--}}
-                                        {{--@endif--}}
-                                    {{--</td>--}}
-                                {{--@else--}}
-                                    {{--<td></td>--}}
-                                {{--@endif--}}
-
-                                {{--@if($client_order_ref != $record->client_order_ref)--}}
-                                    {{--<td>{{$record->client_order_ref}}</td>--}}
-                                {{--@else--}}
-                                    {{--<td></td>--}}
-                                {{--@endif--}}
-
-                                {{--@if($price_unit != $record->price_unit * $record->product_uom_qty)--}}
-                                    {{--<td>{{number_format($record->price_unit * $record->product_uom_qty,2, ',', '.')}}</td>--}}
-                                    {{--@php--}}
-                                        {{--$sum_price_unit += $record->price_unit * $record->product_uom_qty;--}}
-                                    {{--@endphp--}}
-                                {{--@else--}}
-                                    {{--<td></td>--}}
-                                {{--@endif--}}
-
-                                {{--<td>{{$record->no_invoice}}</td>--}}
-                                {{--<td class="pull-right">{{number_format($record->amount_total, 2, ',', '.')}}</td>--}}
-
-                                {{--@php--}}
-                                    {{--$site_type = $record->site_type;--}}
-                                    {{--$work_category = $record->work_category;--}}
-                                    {{--$work_description = $record->work_description;--}}
-                                    {{--$client_order_ref = $record->client_order_ref;--}}
-                                    {{--$price_unit = $record->price_unit * $record->product_uom_qty;--}}
-                                    {{--$sum_amount_total += $record->amount_total;--}}
-                                {{--@endphp--}}
-                            {{--</tr>--}}
-                            {{--@endforeach--}}
-                            {{--<tr>--}}
-                                {{--<th colspan="2">Total</th>--}}
-                                {{--<th class="pull-right">{{number_format($sum_price_unit, 2, ',', '.')}}</th>--}}
-                                {{--<th></th>--}}
-                                {{--<th class="pull-right">{{number_format($sum_amount_total, 2, ',', '.')}}</th>--}}
-                            {{--</tr>--}}
-                            </tbody>
-                        </table>
+                                        {{--</div>--}}
+                                    </div>
+                                    @php
+                                        $sum_nilai_po += $record_header->price_unit * $record_header->product_uom_qty;
+                                        $sum_tagihan += $record_header->subtotal;
+                                    @endphp
+                                @endforeach
+                                <nav class="navbar navbar-default" role="navigation">
+                                    <div class="collapse navbar-collapse" id="navbar-po-header-{{$record_header->id}}" data-toggle="collapse" href="#collapse{{$record_header->id}}">
+                                        <ul class="nav navbar-nav">
+                                            <li class="col-width-2"><a><strong>Grand Total</strong></a></li>
+                                            <li class="col-width-1"><a></a></li>
+                                            <li class="col-width-3" style="text-align:right;"><a>{{number_format($sum_nilai_po,2, ',', '.')}}</a></li>
+                                            <li class="col-width-3" style="text-align:right;"><a>{{number_format($sum_tagihan,2, ',', '.')}}</a></li>
+                                        </ul>
+                                    </div>
+                                </nav>
+                            </div>
+                        </div>
                     </div>
-                    <!-- /.col -->
                 </div>
                 <!-- /.row -->
+                <div class="row">
+                    <br/>
+                </div>
 
                 <!-- this row will not appear when printing -->
                 <div class="row no-print">
@@ -157,6 +143,7 @@
                     </div>
                 </div>
             </section>
+
         </div>
     </div>
 @endsection
