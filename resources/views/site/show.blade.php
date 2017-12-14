@@ -85,6 +85,7 @@
                                                 <th>No Invoice</th>
                                                 <th>Nilai Penagihan</th>
                                                 <th>Budget</th>
+                                                <th>Status Budget</th>
                                                 <th>Realisasi</th>
                                                 <th>Laba/Rugi</th>
                                                 <th>Status INV</th>
@@ -96,10 +97,11 @@
                                                     <tr>
                                                         <td>{{$record->no_invoice}}</td>
                                                         <td class="pull-right">{{number_format($record->amount_total, 2, ',', '.')}}</td>
-                                                        <th>{Budget}</th>
-                                                        <th>{Realisasi}</th>
-                                                        <th>{Laba/Rugi}</th>
-                                                        <th>{Status INV}</th>
+                                                        <td>{{number_format($record->budget_total, 2, ',', '.')}}</td>
+                                                        <td>{{$record->budget_state}}</td>
+                                                        <td>{{number_format($record->realisasi, 2, ',', '.')}}</td>
+                                                        <td>{{number_format($record->amount_total-$record->realisasi, 2, ',', '.')}}</td>
+                                                        <td>{{$record->state}}</td>
                                                     </tr>
                                                 @endif
                                             @endforeach
@@ -113,7 +115,7 @@
                                     @endphp
                                 @endforeach
                                 <nav class="navbar navbar-default" role="navigation">
-                                    <div class="collapse navbar-collapse" id="navbar-po-header-{{$record_header->id}}" data-toggle="collapse" href="#collapse{{$record_header->id}}">
+                                    <div class="collapse navbar-collapse" id="navbar-po-footer" data-toggle="collapse" href="#collapse">
                                         <ul class="nav navbar-nav">
                                             <li class="col-width-2"><a><strong>Grand Total</strong></a></li>
                                             <li class="col-width-1"><a></a></li>
