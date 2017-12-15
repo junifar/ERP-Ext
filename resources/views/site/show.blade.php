@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{{asset('css/collapsible.css')}}" type="text/css"/>
     <style type="text/css">
         .collapse-custom .navbar-nav .col-width-1 {
-            min-width   : 170px;
+            min-width   : 190px;
         }
 
         .collapse-custom .navbar-nav .col-width-2 {
