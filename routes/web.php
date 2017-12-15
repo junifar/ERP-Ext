@@ -11,19 +11,19 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+//Route::get('/', function () {
+//    return view('welcome');
+//});
 
-//Route::post('/site', function(){return 1;})->name('site');
+Route::get('/', 'SiteController@index')->name('site');
+
 Route::get('/site', 'SiteController@index')->name('site');
 Route::get('/site/data', 'SiteController@index_data')->name('site.data');
-//Route::post('/site', 'SiteController@index')->name('site');
 Route::get('/site/detail/{id}','SiteController@show');
+Route::get('/site/export/{id}', 'SiteController@export')->name('site.export');
 
 Route::get('/dashboard', 'DashboardController@index')->name('dashboard');
 Route::get('/dashboard/data', 'DashboardController@data')->name('dashboard.data');
-//Route::post('/dashboard', 'DashboardController@index')->name('dashboard');
 
 
 Route::get('sales_order/detail/{id}','SalesOrderController@show');
