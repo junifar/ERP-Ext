@@ -8,15 +8,15 @@
     <link rel="stylesheet" href="{{asset('css/collapsible.css')}}" type="text/css"/>
     <style type="text/css">
         .collapse-custom .navbar-nav .col-width-1 {
-            min-width   : 315px;
+            min-width   : 190px;
         }
 
         .collapse-custom .navbar-nav .col-width-2 {
-            min-width   : 150px;
+            min-width   : 250px;
         }
 
         .collapse-custom .navbar-nav .col-width-3 {
-            min-width   : 100px;
+            min-width   : 120px;
         }
 
         .navbar-default {
@@ -48,9 +48,9 @@
                                         <div class="navbar-collapse">
                                             <ul class="nav navbar-nav">
                                                 <li class="col-width-2"><a>Site Type</a></li>
-                                                <li class="col-width-1"><a>Nomor Budget</a></li>
-                                                <li class="col-width-3"><a>Nilai Budget</a></li>
-                                                <li class="col-width-3"><a>Realisasi Budget</a></li>
+                                                <li class="col-width-1"><a>Nomor PO</a></li>
+                                                <li class="col-width-3"><a>Nilai PO</a></li>
+                                                <li class="col-width-3"><a>Total Penagihan</a></li>
                                             </ul>
                                         </div>
                                     </nav>
@@ -70,9 +70,9 @@
                                                             @if($record_header->work_description)
                                                                 /{{$record_header->work_description}}
                                                             @endif</a></li>
-                                                    <li class="col-width-1"><a>{{$record_header->name}}</a></li>
-                                                    <li class="col-width-3" style="text-align:right;"><a>{{number_format($record_header->budget_total,2, ',', '.')}}</a></li>
-                                                    <li class="col-width-3" style="text-align:right;"><a>{{number_format($record_header->realisasi,2, ',', '.')}}</a></li>
+                                                    <li class="col-width-1"><a>{{$record_header->client_order_ref}}</a></li>
+                                                    <li class="col-width-3" style="text-align:right;"><a>{{number_format($record_header->price_unit * $record_header->product_uom_qty,2, ',', '.')}}</a></li>
+                                                    <li class="col-width-3" style="text-align:right;"><a>{{number_format($record_header->subtotal,2, ',', '.')}}</a></li>
                                                 </ul>
                                             </div>
                                         </nav>
@@ -91,6 +91,17 @@
                                                 </tr>
                                                 </thead>
                                                 <tbody>
+                                                @if($data_po_count == 0)
+                                                    <tr>
+                                                        <td></td>
+                                                        <td class="pull-right"></td>
+                                                        <td>{{number_format($record_header->budget_total, 2, ',', '.')}}</td>
+                                                        <td>{{$record_header->budget_state}}</td>
+                                                        <td>{{number_format($record_header->realisasi, 2, ',', '.')}}</td>
+                                                        <td>{{number_format($record_header->budget_total+$record_header->realisasi, 2, ',', '.')}}</td>
+                                                        <td></td>
+                                                    </tr>
+                                                @endif
                                                 @foreach($data_po as $record)
                                                     @if($record->id == $record_header->id)
                                                         <tr>
@@ -109,8 +120,8 @@
                                             {{--</div>--}}
                                         </div>
                                         @php
-                                            $sum_nilai_po += $record_header->budget_total;
-                                            $sum_tagihan += $record_header->realisasi;
+                                            $sum_nilai_po += $record_header->price_unit * $record_header->product_uom_qty;
+                                            $sum_tagihan += $record_header->subtotal;
                                         @endphp
                                     @endforeach
                                     <nav class="navbar navbar-default" role="navigation">
