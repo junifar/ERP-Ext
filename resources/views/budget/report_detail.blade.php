@@ -142,6 +142,11 @@
                     <div class="row">
                         <br/>
                     </div>
+                    <div class="row no-print">
+                        <div class="col-xs-12">
+                            <a href="{{route('site.export', ['id' => $id])}}" target="_blank" class="btn btn-default"><i class="fa fa-file-excel-o"></i> To Excel</a>
+                        </div>
+                    </div>
                 </section>
             </div>
         </div>
