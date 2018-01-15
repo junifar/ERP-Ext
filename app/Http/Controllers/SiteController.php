@@ -375,4 +375,48 @@ class SiteController extends Controller
     {
         //
     }
+
+    public function dashboard(){
+        $total_site = DB::table('project_site')
+            ->count();
+
+        $total_project = DB::table('project_project')
+            ->leftJoin('sale_order_line', 'sale_order_line.project_id', '=', 'project_project.id')
+            ->leftJoin('sale_order', 'sale_order_line.order_id', '=', 'sale_order.id')
+            ->where(DB::raw('EXTRACT (YEAR FROM sale_order.date_order)'), '<>', 214)
+            ->whereIn('project_project.site_type_id', [1, 2, 3, 5, 6, 7, 8, 10])
+            ->count();
+
+        $project_per_tahun = DB::table('project_project')
+            ->leftJoin('sale_order_line', 'sale_order_line.project_id', '=', 'project_project.id')
+            ->leftJoin('sale_order', 'sale_order_line.order_id', '=', 'sale_order.id')
+            ->select(
+                DB::raw('EXTRACT (YEAR FROM sale_order.date_order) as date_order'),
+                DB::raw('count(project_project.id) as total'),
+                DB::raw('SUM(CASE WHEN project_project.site_type_id in (1, 2, 3, 5, 6) THEN 1 ELSE 0 END) as total_cme'),
+                DB::raw('SUM(CASE WHEN project_project.site_type_id in (7, 8, 10) THEN 1 ELSE 0 END) as total_mtc')
+            )
+            ->where(DB::raw('EXTRACT (YEAR FROM sale_order.date_order)'), '<>', 214)
+            ->whereIn('project_project.site_type_id', [1, 2, 3, 5, 6, 7, 8, 10])
+            ->groupBy(
+                DB::raw('EXTRACT (YEAR FROM sale_order.date_order)')
+            )
+            ->orderBy(
+                DB::raw('EXTRACT (YEAR FROM sale_order.date_order)'), 'asc'
+            )->get();
+
+        $project_state_status = DB::table('project_project')
+            ->select(
+                'project_project.state',
+                DB::raw('count(project_project.id) as total_state')
+            )->groupBy(
+                'project_project.state'
+            )->orderBy(
+                DB::raw('count(project_project.id)'), 'desc'
+            )->get();
+
+        return view('site.dashboard', compact('total_site',
+            'total_project',
+            'project_per_tahun', 'project_state_status'));
+    }
 }

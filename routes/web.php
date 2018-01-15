@@ -18,6 +18,7 @@
 Route::get('/', 'SiteController@index')->name('site');
 
 Route::get('/site', 'SiteController@index')->name('site');
+Route::get('/site/dashboard', 'SiteController@dashboard')->name('site.dashboard');
 Route::get('/site/data', 'SiteController@index_data')->name('site.data');
 Route::get('/site/detail/{id}','SiteController@show');
 Route::get('/site/export/{id}', 'SiteController@export')->name('site.export');
