@@ -116,6 +116,8 @@
                             <ul class="treeview-menu">
                                 {{--<li><a href="{!! route('dashboard'); !!}"><i class="fa fa-th-large"></i> Sales Order</a></li>--}}
                                 {{--</li>--}}
+                                <li><a href="{!! route('marketing.index'); !!}"><i class="fa fa-th-large"></i> Marketing</a></li>
+                                </li>
                                 <li><a href="{!! route('site.dashboard'); !!}"><i class="fa fa-th-large"></i> Site</a></li>
                                 </li>
                                 <li><a href="{!! route('site.report.budget'); !!}"><i class="fa fa-th-large"></i> Sales Order From Budget</a></li>

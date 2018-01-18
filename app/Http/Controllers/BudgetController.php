@@ -58,7 +58,7 @@ class BudgetController extends Controller
             ->orWhere('site_id_customer', 'ilike', "%{$request->get('name')}%");
 
         return DataTables::of($datas)
-            ->addColumn('action', '<a href="\financial_report\budget\detail\{{$id}}" class="btn btn-primary trigger">Detail</a>')
+            ->addColumn('action', '<a href="\financial_report\budget\detail\{{$id}}" class="btn btn-primary trigger">Detail</a> || <a href="{!! route(\'site.report.analyze\', [$id]) !!}" class="btn btn-primary">Analyze Detail</a>')
 //            ->addColumn('action', '<a href="#" data-featherlight="\SalesOrder\{{$id}} .selector" class="btn btn-primary">Detail</a>')
             ->make(true);
     }
@@ -200,5 +200,9 @@ class BudgetController extends Controller
             ->count();
 
         return view('budget.report_detail', compact('data','data_po_header', 'data_po', 'data_po_count', 'id'));
+    }
+
+    public function detail_analyze($id){
+        return view('budget.detail_analyze');
     }
 }
