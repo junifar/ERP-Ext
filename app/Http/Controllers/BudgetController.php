@@ -203,6 +203,54 @@ class BudgetController extends Controller
     }
 
     public function detail_analyze($id){
-        return view('budget.detail_analyze');
+        if(!$id){
+            abort(404);
+        }
+
+        $site = DB::table('project_site')
+            ->leftJoin('project_area', 'project_site.area_id' , '=', 'project_area.id')
+            ->leftJoin('res_partner', 'project_site.customer_id', '=', 'res_partner.id')
+            ->leftJoin('project_tower_type', 'project_site.tower_type_id', '=', 'project_tower_type.id')
+            ->leftJoin('project_field_type', 'project_site.field_type_id', '=', 'project_field_type.id')
+            ->leftJoin('project_tinggi_tower', 'project_site.tinggi_tower_id', '=', 'project_tinggi_tower.id')
+            ->leftJoin('project_island', 'project_site.island_id', '=', 'project_island.id')
+            ->leftJoin('project_province', 'project_site.province_id', '=', 'project_province.id')
+            ->leftJoin('project_city', 'project_site.city_id', '=', 'project_city.id')
+            ->select(
+                'project_site.id', 'project_site.name',
+                'site_id_customer', 'site_alias1',
+                'site_alias2', 'project_area.name as area_name',
+                'project_site.site_id_prasetia', 'res_partner.name as customer_name',
+                'project_tower_type.name as tower_type_name', 'project_field_type.name as field_type_name',
+                'project_tinggi_tower.name as tinggi_tower_name', 'project_island.name as island_name',
+                'project_province.name as province_name', 'project_city.name as city_name',
+                'project_site.address')
+            ->where('project_site.id', '=', "{$id}")->first();
+
+        $project = DB::table('project_project')
+            ->leftJoin('account_analytic_account', 'account_analytic_account.id', '=', 'project_project.analytic_account_id')
+            ->leftJoin('sale_order_line', 'project_project.id', '=', 'sale_order_line.project_id')
+            ->leftJoin('sale_order', 'sale_order_line.order_id', '=', 'sale_order.id')
+            ->leftJoin('res_users', 'project_project.project_manager_id', '=', 'res_users.id')
+            ->leftJoin('res_partner', 'res_partner.id', 'res_users.partner_id')
+            ->select(
+                'project_project.id',
+                'account_analytic_account.name as project_id',
+                'sale_order.name as sale_order_no',
+                'sale_order.client_order_ref',
+                'sale_order.memo_internal',
+                'sale_order.date_order',
+                'sale_order.amount_total',
+                'sale_order.state',
+                'res_partner.name as pic'
+            )
+            ->where('project_project.site_id', '=', "{$id}")->get();
+
+        $project_id = null;
+
+        $project_id = array_column($project, 'id');
+        return $project_id;
+
+        return view('budget.detail_analyze', compact('site', 'project'));
     }
 }
