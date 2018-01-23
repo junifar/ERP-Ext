@@ -15,7 +15,7 @@
 //    return view('welcome');
 //});
 
-Route::get('/', 'SiteController@index')->name('site');
+//Route::get('/', 'SiteController@index')->name('site');
 
 Route::get('/site', 'SiteController@index')->name('site');
 Route::get('/site/dashboard', 'SiteController@dashboard')->name('site.dashboard');
@@ -26,6 +26,7 @@ Route::get('/site/export/{id}', 'SiteController@export')->name('site.export');
 Route::get('/dashboard', 'DashboardController@index')->name('dashboard');
 Route::get('/dashboard/data', 'DashboardController@data')->name('dashboard.data');
 
+Route::get('/', 'BudgetController@report')->name('site.report.budget');
 Route::get('/financial_report/budget', 'BudgetController@report')->name('site.report.budget');
 Route::get('/financial_report/budget/data', 'BudgetController@reportdata')->name('site.report.budget.data');
 Route::get('/financial_report/budget/detail/{id}','BudgetController@reportdetail');

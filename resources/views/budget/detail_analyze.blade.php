@@ -157,7 +157,7 @@
                                                         <th>Tanggal PO</th>
                                                         <th>Nilai Project</th>
                                                         <th>PIC</th>
-                                                        <th>Project Status</th>
+                                                        <th>PO Status</th>
                                                     </tr>
                                                     </thead>
                                                     <tbody>
@@ -168,7 +168,7 @@
                                                             <td>{{ $data->client_order_ref }}</td>
                                                             <td>{{ $data->memo_internal }}</td>
                                                             <td>{{ $data->date_order }}</td>
-                                                            <td>{{  number_format($data->amount_total,0, ',', '.') }}</td>
+                                                            <td>{{ number_format($data->amount_total,0, ',', '.') }}</td>
                                                             <td>{{ $data->pic  }}</td>
                                                             <td>{{ $data->state }}</td>
                                                         </tr>
@@ -176,8 +176,53 @@
                                                     </tbody>
                                                 </table>
                                             </div>
-                                            <div class="tab-pane" id="tab_2">
-                                                2
+                                            <div class="tab-pane" id="tab_budget">
+                                                <table class="table table-hover">
+                                                    <thead>
+                                                    <tr>
+                                                        <th>Project ID</th>
+                                                        <th>No SO</th>
+                                                        <th>No PO Customer</th>
+                                                        <th>No Budget</th>
+                                                        <th>Tanggal Budget</th>
+                                                        <th>Total Budget</th>
+                                                        <th>Draft Actual Budget</th>
+                                                        <th>Actual Budget</th>
+                                                        <th>Sisa Budget</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    @foreach($project as $data)
+                                                        @php
+                                                            $budgetData = null;
+                                                            foreach ($project_budget as $check_data):
+                                                                if ($data->id == $check_data->project_id){
+                                                                    $budgetData[] = new \App\Http\Controllers\Budget\BudgetData(
+                                                                                    $check_data->budget_no,
+                                                                                    $check_data->date,
+                                                                                    $check_data->amount_total,
+                                                                                    0,
+                                                                                    $check_data->amount_total,
+                                                                                    0);
+                                                                }
+                                                            endforeach;
+                                                        @endphp
+                                                        @foreach($budgetData as $value)
+                                                        <tr>
+                                                            <td>{{ $data->project_id }}</td>
+                                                            <td>{{ $data->sale_order_no }}</td>
+                                                            <td>{{ $data->client_order_ref }}</td>
+                                                            <td>{{ $value->budget_no }}</td>
+                                                            <td>{{ $value->budget_date }}</td>
+                                                            <td><div class="pull-right">{{ number_format($value->amount_total,0, ',', '.') }}</div></td>
+                                                            <td><div class="pull-right">{{ number_format($value->budget_used_request,0, ',', '.') }}</div></td>
+                                                            <td><div class="pull-right">{{ number_format($value->actual_budget, 0, ',', '.') }}</div></td>
+                                                            <td><div class="pull-right">{{ number_format($value->budget_remaining,0, ',', '.') }}</div></td>
+                                                        </tr>
+                                                        @endforeach
+                                                    @endforeach
+                                                    </tbody>
+                                                </table>
                                             </div>
                                         </div>
                                     </div>

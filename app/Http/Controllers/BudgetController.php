@@ -246,11 +246,36 @@ class BudgetController extends Controller
             )
             ->where('project_project.site_id', '=', "{$id}")->get();
 
-        $project_id = null;
 
-        $project_id = array_column($project, 'id');
-        return $project_id;
+        $ids = null;
+        foreach ($project as $data):
+            $ids[] = $data->id;
+        endforeach;
 
-        return view('budget.detail_analyze', compact('site', 'project'));
+        $project_budget = DB::table('budget_plan')
+            ->select(
+                'budget_plan.id',
+                'budget_plan.project_id as project_id',
+                'budget_plan.name as budget_no',
+                'budget_plan.date',
+                DB::raw('sum(budget_plan_line.amount) as amount_total')
+//                DB::raw('sum(budget_used_request.request) as budget_used_request'),
+//                DB::raw('sum(budget_used.amount) as actual_budget')
+            )
+            ->leftJoin('budget_plan_line', 'budget_plan_line.budget_id', 'budget_plan.id')
+//            ->leftJoin('budget_used', 'budget_used.budget_item_id', 'budget_plan_line.id')
+//            ->leftJoin('budget_used_request', 'budget_used_request.budget_item_id', 'budget_plan_line.id')
+            ->groupBy(
+                'budget_plan.id',
+                'budget_plan.project_id',
+                'budget_plan.name',
+                'budget_plan.date'
+            )
+            ->whereIn('project_id', $ids)
+            ->get();
+
+//        return $project_budget;
+
+        return view('budget.detail_analyze', compact('site', 'project', 'project_budget'));
     }
 }
