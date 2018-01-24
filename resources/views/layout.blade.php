@@ -122,6 +122,10 @@
                                 </li>
                                 <li><a href="{!! route('site.report.budget'); !!}"><i class="fa fa-th-large"></i> Sales Order From Budget</a></li>
                                 </li>
+                                <li><a href="{!! route('finance.report_project'); !!}"><i class="fa fa-th-large"></i> Finance - Monitoring Project</a></li>
+                                </li>
+                                <li><a href="{!! route('finance.report_budget_dept'); !!}"><i class="fa fa-th-large"></i> Finance - Monitoring Dept</a></li>
+                                </li>
                             </ul>
                         </li>
                     </ul>

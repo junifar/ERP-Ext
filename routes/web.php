@@ -32,7 +32,12 @@ Route::get('/financial_report/budget/data', 'BudgetController@reportdata')->name
 Route::get('/financial_report/budget/detail/{id}','BudgetController@reportdetail');
 Route::get('/financial_report/budget/detail_analyze/{id}','BudgetController@detail_analyze')->name('site.report.analyze');
 
+Route::get('/finance/report_project', 'FinanceController@reportproject')->name('finance.report_project');
+Route::post('/finance/report_project', 'FinanceController@reportproject')->name('finance.report_project');
+Route::get('/finance/report_budget_dept', 'FinanceController@reportBudgetDept')->name('finance.report_budget_dept');
+Route::get('/finance/report_budget_dept_detail/{id}', 'FinanceController@reportBudgetDeptDetail')->name('finance.report_budget_dept_detail');
+
 Route::get('/marketing', 'MarketingController@index')->name('marketing.index');
 
-Route::get('sales_order/detail/{id}','SalesOrderController@show');
+Route::get('sales_order/detail/{tahun}','SalesOrderController@show');
 
