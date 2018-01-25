@@ -15,6 +15,10 @@
             margin-bottom: 0;
             text-align: left;
         }
+
+        table, thead, tbody, th, td {
+            border: 1px solid black !important;
+        }
     </style>
 @endpush
 
@@ -23,47 +27,136 @@
         <div class="col-md-12">
             <div class="box box-solid">
                 <div class="box-body">
+
                     <h4 style="background-color:#f7f7f7; font-size: 18px; text-align: center; padding: 7px 10px; margin-top: 0;">
                         Monitoring Budget Dept {{ $tahun }}
                     </h4>
                     <br/>
-                    <div class="col-md-12">
-                        <h3>Finance</h3>
-                        <table class="table table-bordered table-striped table-hover">
-                            <thead>
-                            <tr>
-                                <th>Periode</th>
-                                <th>Budget View</th>
-                                <th>Budget Item</th>
-                                <th>Nilai Budget</th>
-                                <th>Nilai Pengajuan</th>
-                                <th>Sisa Budget</th>
-                                <th>%</th>
-                                <th>% Budget</th>
-                                <th>% Pengajuan</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <td>Januari</td>
-                                <td>Budget View</td>
-                                <td>Budget Item</td>
-                                <td>1.000.000,00</td>
-                                <td>900.000,00</td>
-                                <td>100.000</td>
-                                <td>90%</td>
-                                <td>90%</td>
-                                <td>90%</td>
-                            </tr>
-                            </tbody>
-                        </table>
+                    <div class="nav-tabs-custom">
+                        <ul class="nav nav-tabs">
+                            @php
+                                $active = true;
+                            @endphp
+                            @foreach($budget_plan_line_departments as $data)
+                                <li {{ ($active)?'class="active"':'' }}><a href="#tab_{{ strtolower($data) }}" data-toggle="tab">{{ $data }}</a></li>
+                                @php
+                                    $active=false;
+                                @endphp
+                            @endforeach
+                        </ul>
+                        <div class="tab-content">
+                            @php
+                                $active = true;
+                            @endphp
+                            @foreach($budget_plan_line_departments as $data)
+                                <div class="tab-pane {{ ($active)?'active':'' }}" id="tab_{{ strtolower($data) }}">
+                                    <h3>{{ $data }}</h3>
+                                    <div class="row col-md-12">
+                                        <div class="col-md-4 col-sm-6 col-xs-12">
+                                            <div class="info-box">
+                                                <span class="info-box-icon bg-red"><i class="fa fa-google-plus"></i></span>
+
+                                                <div class="info-box-content">
+                                                    <span class="info-box-text">Likes</span>
+                                                    <span class="info-box-number">41,410</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 col-sm-6 col-xs-12">
+                                            <div class="info-box">
+                                                <span class="info-box-icon bg-aqua"><i class="ion ion-ios-gear-outline"></i></span>
+
+                                                <div class="info-box-content">
+                                                    <span class="info-box-text">CPU Traffic</span>
+                                                    <span class="info-box-number">90<small>%</small></span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4 col-sm-6 col-xs-12">
+                                            <div class="info-box">
+                                                <span class="info-box-icon bg-red"><i class="fa fa-google-plus"></i></span>
+
+                                                <div class="info-box-content">
+                                                    <span class="info-box-text">Likes</span>
+                                                    <span class="info-box-number">41,410</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <table class="table table-bordered table-striped table-hover">
+                                        <thead>
+                                        <tr>
+                                            <th>Budget View</th>
+                                            <th>Budget Item</th>
+                                            <th>Nilai Budget</th>
+                                            <th>Nilai Pengajuan</th>
+                                            <th>Sisa Budget</th>
+                                            <th>%</th>
+                                            <th>% Budget</th>
+                                            <th>% Pengajuan</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {{--@foreach(budget_plan_line_datas as $month_data)--}}
+                                        {{--@endforeach--}}
+                                        <tr>
+                                            <th colspan="8" style="background-color: #ecefeb">Januari</th>
+                                        </tr>
+                                        <tr>
+                                            <td>Budget View</td>
+                                            <td>Budget Item</td>
+                                            <td>1.000.000,00</td>
+                                            <td>900.000,00</td>
+                                            <td>100.000</td>
+                                            <td>90%</td>
+                                            <td>90%</td>
+                                            <td>90%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Budget View</td>
+                                            <td>Budget Item</td>
+                                            <td>1.000.000,00</td>
+                                            <td>900.000,00</td>
+                                            <td>100.000</td>
+                                            <td>90%</td>
+                                            <td>90%</td>
+                                            <td>90%</td>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="8" style="background-color: #ecefeb">Februari</th>
+                                        </tr>
+                                        <tr>
+                                            <td>Budget View</td>
+                                            <td>Budget Item</td>
+                                            <td>1.000.000,00</td>
+                                            <td>900.000,00</td>
+                                            <td>100.000</td>
+                                            <td>90%</td>
+                                            <td>90%</td>
+                                            <td>90%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Budget View</td>
+                                            <td>Budget Item</td>
+                                            <td>1.000.000,00</td>
+                                            <td>900.000,00</td>
+                                            <td>100.000</td>
+                                            <td>90%</td>
+                                            <td>90%</td>
+                                            <td>90%</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                @php
+                                    $active=false;
+                                @endphp
+                            @endforeach
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 @endsection
-
-@push('scripts')
-
-@endpush
