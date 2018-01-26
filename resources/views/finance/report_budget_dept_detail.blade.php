@@ -38,7 +38,7 @@
                                 $active = true;
                             @endphp
                             @foreach($budget_plan_line_departments as $data)
-                                <li {{ ($active)?'class="active"':'' }}><a href="#tab_{{ strtolower($data) }}" data-toggle="tab">{{ $data }}</a></li>
+                                <li {{ ($active)?'class="active"':'' }}><a href="#tab_{{ strtolower($data['department_name']) }}" data-toggle="tab">{{ $data['department_name'] }}</a></li>
                                 @php
                                     $active=false;
                                 @endphp
@@ -49,8 +49,8 @@
                                 $active = true;
                             @endphp
                             @foreach($budget_plan_line_departments as $data)
-                                <div class="tab-pane {{ ($active)?'active':'' }}" id="tab_{{ strtolower($data) }}">
-                                    <h3>{{ $data }}</h3>
+                                <div class="tab-pane {{ ($active)?'active':'' }}" id="tab_{{ strtolower($data['department_name']) }}">
+                                    <h3>{{ $data['department_name'] }}</h3>
                                     <div class="row col-md-12">
                                         <div class="col-md-4 col-sm-6 col-xs-12">
                                             <div class="info-box">
@@ -84,6 +84,7 @@
                                             </div>
                                         </div>
                                     </div>
+
                                     <table class="table table-bordered table-striped table-hover">
                                         <thead>
                                         <tr>
@@ -92,60 +93,23 @@
                                             <th>Nilai Budget</th>
                                             <th>Nilai Pengajuan</th>
                                             <th>Sisa Budget</th>
-                                            <th>%</th>
-                                            <th>% Budget</th>
-                                            <th>% Pengajuan</th>
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        {{--@foreach(budget_plan_line_datas as $month_data)--}}
-                                        {{--@endforeach--}}
-                                        <tr>
-                                            <th colspan="8" style="background-color: #ecefeb">Januari</th>
-                                        </tr>
-                                        <tr>
-                                            <td>Budget View</td>
-                                            <td>Budget Item</td>
-                                            <td>1.000.000,00</td>
-                                            <td>900.000,00</td>
-                                            <td>100.000</td>
-                                            <td>90%</td>
-                                            <td>90%</td>
-                                            <td>90%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Budget View</td>
-                                            <td>Budget Item</td>
-                                            <td>1.000.000,00</td>
-                                            <td>900.000,00</td>
-                                            <td>100.000</td>
-                                            <td>90%</td>
-                                            <td>90%</td>
-                                            <td>90%</td>
-                                        </tr>
-                                        <tr>
-                                            <th colspan="8" style="background-color: #ecefeb">Februari</th>
-                                        </tr>
-                                        <tr>
-                                            <td>Budget View</td>
-                                            <td>Budget Item</td>
-                                            <td>1.000.000,00</td>
-                                            <td>900.000,00</td>
-                                            <td>100.000</td>
-                                            <td>90%</td>
-                                            <td>90%</td>
-                                            <td>90%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Budget View</td>
-                                            <td>Budget Item</td>
-                                            <td>1.000.000,00</td>
-                                            <td>900.000,00</td>
-                                            <td>100.000</td>
-                                            <td>90%</td>
-                                            <td>90%</td>
-                                            <td>90%</td>
-                                        </tr>
+                                        @foreach($data['periodes'] as $periode)
+                                            <tr>
+                                                <th colspan="8" style="background-color: #ecefeb">{{ sprintf("%s s/d %s", $periode['periode_start'], $periode['periode_end']) }}</th>
+                                            </tr>
+                                            @foreach($periode['datas'] as $item)
+                                                <tr>
+                                                    <td>{{ $item['budget_view_name'] }}</td>
+                                                    <td>{{ $item['name'] }}</td>
+                                                    <td>{{ number_format($item['amount'],2, ',', '.') }}</td>
+                                                    <td>{{ number_format($item['nilai_pengajuan'],2, ',', '.') }}</td>
+                                                    <td>{{ number_format($item['sisa_budget'],2, ',', '.') }}</td>
+                                                </tr>
+                                            @endforeach
+                                        @endforeach
                                         </tbody>
                                     </table>
                                 </div>

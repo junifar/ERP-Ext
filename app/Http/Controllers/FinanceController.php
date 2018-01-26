@@ -7,40 +7,6 @@ use Illuminate\Support\Facades\DB;
 
 class FinanceController extends Controller
 {
-    public function index()
-    {
-        //
-    }
-
-    public function create()
-    {
-        //
-    }
-
-    public function store(Request $request)
-    {
-        //
-    }
-
-    public function show($id)
-    {
-        //
-    }
-
-    public function edit($id)
-    {
-        //
-    }
-
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    public function destroy($id)
-    {
-        //
-    }
 
     public function reportproject(){
         $years = $this->_get_ten_years();
@@ -91,44 +57,103 @@ class FinanceController extends Controller
             ->orderBy('hr_department.name', 'asc')
             ->orderBy('budget_plan.date', 'asc')
             ->get();
-        $budget_plan_line_departments = $this->_reportBudgetDeptDetailGetDeptName($budget_plan_line_datas);
-        return $budget_plan_line_departments;
-        $budget_plan_line_department_periods = $this->_reportBudgetDeptDetailGetDeptPeriode($budget_plan_line_datas, $budget_plan_line_departments);
-        return $budget_plan_line_department_periods;
+
+        $budget_plan_ids = null;
+
+        foreach ($budget_plan_line_datas as $data){
+            $budget_plan_ids[] = $data->budget_plan_id;
+        }
+
+        $budget_plan_request = DB::table('budget_used_request')
+            ->select(
+                'budget_used_request.budget_item_id',
+                DB::raw('sum(budget_used_request.request) as total')
+            )
+            ->groupBy(
+                'budget_used_request.budget_item_id'
+            )
+            ->whereIn('budget_used_request.budget_item_id', $budget_plan_ids)
+            ->get();
+
+        $budget_plan_line_departments = $this->_reportBudgetDeptDetailGetDeptName($budget_plan_line_datas, $budget_plan_request);
+
         return view('finance.report_budget_dept_detail', compact('tahun', 'budget_plan_line_datas',
             'budget_plan_line_departments'));
     }
 
-    private function _reportBudgetDeptDetailGetDeptName($datas){
+    private function _reportBudgetDeptDetailGetDeptName($datas, $budget_plan_request){
         $value = null;
         foreach ($datas as $data){
             $isfound = false;
             if($value){
-                foreach ($value as &$check){
-                    if($check == $data->department_name){
+                foreach ($value as $check){
+                    if($check['department_name'] == $data->department_name){
                         $isfound = true;
                         break;
                     }
                 }
             }
-            if(!$isfound)
-                $value[] = $data->department_name;
+            if(!$isfound){
+                $value_periode = $this->_getPeriodes($datas, $data, $budget_plan_request);
+                $value[] = array('department_name' => $data->department_name, 'periodes' => $value_periode);
+            }
+
         }
         return $value;
     }
 
-    private function _reportBudgetDeptDetailGetDeptPeriode($datas, $departments){
-        $value = null;
-        foreach ($departments as $department){
-            $value_data = null;
-            foreach ($datas as $data){
-                if($data->department_name == $department){
-                    $value_data[] =  array($data->budget_plan_id, sprintf('%s - %s', $data->periode_start, $data->periode_end));
+    /**
+     * @param $datas
+     * @param $data
+     * @return array|null
+     */
+    private function _getPeriodes($datas, $data, $budget_plan_request)
+    {
+        $value_periode = null;
+        foreach ($datas as $data_check_periode) {
+            if ($data_check_periode->department_name == $data->department_name) {
+                $isfound_periode = false;
+                if ($value_periode) {
+                    foreach ($value_periode as $check_periode) {
+                        if ($check_periode['date'] == $data_check_periode->date) {
+                            $isfound_periode = true;
+                            break;
+                        }
+                    }
                 }
-                $value[$department] = $value_data;
+                if (!$isfound_periode) {
+                    $value_budget_data = null;
+                    foreach ($datas as $data_check_budget_data){
+                        if($data_check_budget_data->department_name == $data->department_name &&
+                            $data_check_budget_data->date == $data_check_periode->date){
+
+                            $nilai_pengajuan = 0;
+                            foreach ($budget_plan_request as $nilai_pengajuan_data){
+                                if($nilai_pengajuan_data->budget_item_id == $data_check_budget_data->budget_plan_id){
+                                    $nilai_pengajuan = $nilai_pengajuan_data->total;
+                                    break;
+                                }
+                            }
+
+                            $value_budget_data[] = array(
+                                'budget_view_name' => $data_check_budget_data->budget_view_name,
+                                'name' => $data_check_budget_data->name,
+                                'amount' => $data_check_budget_data->amount,
+                                'nilai_pengajuan' => $nilai_pengajuan,
+                                'sisa_budget' => $data_check_budget_data->amount + $nilai_pengajuan,
+//                                ((float)($data_check_budget_data->amount + $nilai_pengajuan)) / ((float)$data_check_budget_data->amount) * 100
+                                'persentase_budget' => 9999
+                            );
+                        }
+                    }
+                    $value_periode[] = array('date' => $data_check_periode->date,
+                        'periode_start' => $data_check_periode->periode_start,
+                        'periode_end' => $data_check_periode->periode_end,
+                        'datas' => $value_budget_data);
+                }
             }
         }
-        return $value;
+        return $value_periode;
     }
 
     private function _get_ten_years(){
