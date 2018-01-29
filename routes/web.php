@@ -35,7 +35,8 @@ Route::get('/financial_report/budget/detail_analyze/{id}','BudgetController@deta
 Route::get('/finance/report_project', 'FinanceController@reportproject')->name('finance.report_project');
 Route::post('/finance/report_project', 'FinanceController@reportproject')->name('finance.report_project');
 Route::get('/finance/report_budget_dept', 'FinanceController@reportBudgetDept')->name('finance.report_budget_dept');
-Route::get('/finance/report_budget_dept_detail/{id}', 'FinanceController@reportBudgetDeptDetail')->name('finance.report_budget_dept_detail');
+Route::get('/finance/report_budget_dept_detail/{tahun}', 'FinanceController@reportBudgetDeptDetail')->name('finance.report_budget_dept_detail');
+Route::get('/finance/test', 'FinanceController@SampleTest');
 
 Route::get('/marketing', 'MarketingController@index')->name('marketing.index');
 

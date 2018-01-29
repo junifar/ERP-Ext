@@ -39,24 +39,14 @@
                                 </tr>
                             </thead>
                             <tbody>
+                            @foreach($budget_by_years as $data)
                                 <tr>
-                                    <td>2013</td>
-                                    <td>2.000.000.000,00</td>
-                                    <td>3.000.000.000,00</td>
-                                    <td><a href="{!! route('finance.report_budget_dept_detail', [2013]); !!}">show</a></td>
+                                    <td>{{ $data->tahun }}</td>
+                                    <td>{{ number_format($data->total,2, ',', '.') }}</td>
+                                    <td>{{ number_format($data->realization,2, ',', '.') }}</td>
+                                    <td><a href="{!! route('finance.report_budget_dept_detail', [$data->tahun]); !!}">show</a></td>
                                 </tr>
-                                <tr>
-                                    <td>2014</td>
-                                    <td>2.000.000.000,00</td>
-                                    <td>3.000.000.000,00</td>
-                                    <td><a href="{!! route('finance.report_budget_dept_detail',[2014]); !!}">show</a></td>
-                                </tr>
-                                <tr>
-                                    <td>2015</td>
-                                    <td>2.000.000.000,00</td>
-                                    <td>3.000.000.000,00</td>
-                                    <td><a href="{!! route('finance.report_budget_dept_detail',[2015]); !!}">show</a></td>
-                                </tr>
+                            @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -103,24 +93,24 @@
                     },
                     "categories": [{
                         "category": [
-                            {"label": "2013"},
-                            {"label": "2014"},
-                            {"label": "2015"}
+                            @foreach($budget_by_years as $data)
+                                {"label": "{{ $data->tahun }}"},
+                            @endforeach
                         ]
                     }],
                     "dataset": [{
                         "seriesname": "Budget Plan",
                         "data": [
-                            {"value": "100"},
-                            {"value": "200"},
-                            {"value": "300"}
+                            @foreach($budget_by_years as $data)
+                            {"value": "{{ $data->total }}"},
+                            @endforeach
                         ]
                     },{
                         "seriesname": "Realization",
                         "data": [
-                            {"value": "400"},
-                            {"value": "500"},
-                            {"value": "600"}
+                            @foreach($budget_by_years as $data)
+                            {"value": "{{ $data->realization }}"},
+                            @endforeach
                         ]
                     }]
                 }

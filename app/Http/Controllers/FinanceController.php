@@ -2,11 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\BudgetPlan;
+use App\Island;
 use Illuminate\Support\Facades\DB;
 
 class FinanceController extends Controller
 {
+    public function SampleTest(){
+        return Island::with('provinces.cities')->get();
+//        return 1;
+    }
 
     public function reportproject(){
         $years = $this->_get_ten_years();
@@ -18,21 +23,53 @@ class FinanceController extends Controller
     public function reportBudgetDept(){
         $budget_by_years = DB::table('budget_plan')
             ->select(
-                'hr_department.name as department_name',
                 DB::raw('EXTRACT(YEAR from periode_start) as tahun'),
                 DB::raw('sum(budget_plan_line.amount) as total')
             )
             ->leftJoin('hr_department', 'budget_plan.department_id', '=', 'hr_department.id')
             ->leftJoin('budget_plan_line', 'budget_plan_line.budget_id', '=', 'budget_plan.id')
             ->groupBy(
-                'hr_department.name',
                 DB::raw('EXTRACT(YEAR from periode_start)')
             )
-            ->orderBy('hr_department.name',
+            ->orderBy(
                 DB::raw('EXTRACT(YEAR from periode_start)')
             )
             ->where('budget_plan.type', '=', 'department')
+            ->whereNotNull(DB::raw('EXTRACT(YEAR from periode_start)'))
             ->get();
+
+        $budget_years = null;
+        foreach ($budget_by_years as $data){
+            $budget_years[] = $data->tahun;
+        }
+
+        $budget_realizations = DB::table('budget_used_request')
+            ->select(
+                DB::raw('EXTRACT(YEAR from periode_start) as tahun'),
+                DB::raw('sum(budget_used_request.request) as total')
+            )
+            ->leftJoin('budget_plan_line', 'budget_used_request.budget_item_id', '=', 'budget_plan_line.id')
+            ->leftJoin('budget_plan', 'budget_plan_line.budget_id', 'budget_plan.id')
+            ->groupBy(
+                DB::raw('EXTRACT(YEAR from periode_start)')
+            )
+            ->whereIn(DB::raw('EXTRACT(YEAR from periode_start)'), $budget_years)
+            ->where('budget_plan.type', '=', 'department')
+            ->get();
+
+        foreach ($budget_by_years as $data){
+            $request = null;
+            foreach ($budget_realizations as $check){
+                if($check->tahun == $data->tahun){
+                    $request = $check->total;
+                    break;
+                }
+            }
+            $data->realization = 0-$request;
+        }
+
+//        return $budget_by_years;
+
         return view('finance.report_budget_dept', compact('budget_by_years'));
     }
 
@@ -54,6 +91,7 @@ class FinanceController extends Controller
             ->leftJoin('budget_plan_line as budget_plan_line_view', 'budget_plan_line.parent_id', 'budget_plan_line_view.id')
             ->where('budget_plan_line.type', '<>', 'view')
             ->where('budget_plan.type', '=', 'department')
+            ->where(DB::raw('EXTRACT(YEAR from budget_plan.periode_start)'), '=', $tahun)
             ->orderBy('hr_department.name', 'asc')
             ->orderBy('budget_plan.date', 'asc')
             ->get();
