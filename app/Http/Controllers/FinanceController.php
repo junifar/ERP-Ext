@@ -12,6 +12,10 @@ class FinanceController extends Controller
         return Island::with('provinces.cities')->get();
     }
 
+    public function reportprojectdetail(){
+        return 1;
+    }
+
     public function reportproject(Request $request){
         $years = $this->_get_ten_years();
         $site_types = $this->_get_site_types();
