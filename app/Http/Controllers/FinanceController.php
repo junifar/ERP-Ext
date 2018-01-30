@@ -2,22 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use App\BudgetPlan;
 use App\Island;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class FinanceController extends Controller
 {
     public function SampleTest(){
         return Island::with('provinces.cities')->get();
-//        return 1;
     }
 
-    public function reportproject(){
+    public function reportproject(Request $request){
         $years = $this->_get_ten_years();
         $site_types = $this->_get_site_types();
-        $customers = $this->_get_customers();
-        return view('finance.report_project', compact('years', 'site_types', 'customers'));
+        $project_data = null;
+        if($request->has('year_filter')){
+            $resume_project = DB::table('sale_order_line')
+                ->select(
+                    'res_partner.name as customer_name',
+                    DB::raw('EXTRACT(YEAR from sale_order.date_order) as year'),
+                    DB::raw('count(project_project.id) as total_project'),
+                    DB::raw('sum(sale_order_line.price_unit * sale_order_line.product_uom_qty) as nilai_po')
+                )
+                ->leftJoin('sale_order', 'sale_order_line.order_id', '=', 'sale_order.id')
+                ->leftJoin('res_partner', 'sale_order.partner_id', '=', 'res_partner.id')
+                ->leftJoin('project_project', 'sale_order_line.project_id', '=', 'project_project.id')
+                ->whereRaw(DB::raw('EXTRACT(YEAR from sale_order.date_order) = ' . $request->input('year_filter')))
+                ->where('project_project.site_type_id', '=',$request->input('site_type_filter'))
+                ->groupBy('res_partner.name', DB::raw('EXTRACT(YEAR from sale_order.date_order)'))
+                ->get();
+
+            $project_data = $resume_project;
+        }
+        return view('finance.report_project', compact('years', 'site_types', 'project_data'));
     }
 
     public function reportBudgetDept(){
@@ -205,16 +222,8 @@ class FinanceController extends Controller
 
     private function _get_site_types(){
         return DB::table('project_site_type')
+            ->whereNotIn('id', [9, 36, 37, 38, 40, 41, 42, 43, 44, 45, 46, 47, 48, 61])
             ->select('id', 'name')
             ->pluck('name', 'id');
-    }
-
-    private function _get_customers(){
-        return DB::table('sale_order')
-            ->leftJoin('res_partner', 'sale_order.partner_id', 'res_partner.id')
-            ->select('res_partner.id', 'res_partner.name')
-            ->orderBy('name', 'asc')
-            ->distinct()
-            ->pluck('name','id');
     }
 }
