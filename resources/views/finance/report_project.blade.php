@@ -83,7 +83,7 @@
                                                 <td>{{ $data->customer_name }}</td>
                                                 <td><div class="pull-right">{{ $data->total_project }}</div></td>
                                                 <td><div class="pull-right">0</div></td>
-                                                <td><a href="{{ route('finance.report_project.detail') }}">Details</a></td>
+                                                <td><a href="{{ route('finance.report_project.detail', [$data->customer_id, $data->year, $data->site_type_id]) }}">Details</a></td>
                                             </tr>
                                             @php
                                                 $sum_total_project += $data->total_project;

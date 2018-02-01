@@ -12,8 +12,30 @@ class FinanceController extends Controller
         return Island::with('provinces.cities')->get();
     }
 
-    public function reportprojectdetail(){
-        return 1;
+    public function reportprojectdetail($customer_id, $year, $site_type_id){
+        $resume_project = DB::table('sale_order_line')
+            ->select(
+                'sale_order_line.id',
+                'sale_order_line.project_id',
+                'project_site.name as site_name',
+                'account_analytic_account.name as project_id',
+                'res_partner.name as customer_name',
+                'project_site_type.name as project_type',
+                'sale_order_line.price_unit as nilai_po'
+            )
+            ->leftJoin('sale_order', 'sale_order_line.order_id', '=', 'sale_order.id')
+            ->leftJoin('res_partner', 'sale_order.partner_id', '=', 'res_partner.id')
+            ->leftJoin('project_project', 'sale_order_line.project_id', '=', 'project_project.id')
+            ->leftJoin('project_site','project_project.site_id', '=', 'project_site.id')
+            ->leftJoin('account_analytic_account', 'project_project.analytic_account_id', '=', 'account_analytic_account.id')
+            ->leftJoin('project_site_type', 'project_project.site_type_id', '=', 'project_site_type.id')
+            ->whereRaw(DB::raw('EXTRACT(YEAR from sale_order.date_order) = ' . $year))
+            ->where('project_project.site_type_id', '=',$site_type_id)
+            ->where('sale_order.partner_id', '=', $customer_id)
+            ->orderBy( 'project_site.name', 'asc')
+            ->get();
+
+        return view('finance.report_project_detail', compact('resume_project'));
     }
 
     public function reportproject(Request $request){
@@ -24,6 +46,8 @@ class FinanceController extends Controller
             $resume_project = DB::table('sale_order_line')
                 ->select(
                     'res_partner.name as customer_name',
+                    'sale_order.partner_id as customer_id',
+                    'project_project.site_type_id',
                     DB::raw('EXTRACT(YEAR from sale_order.date_order) as year'),
                     DB::raw('count(project_project.id) as total_project'),
                     DB::raw('sum(sale_order_line.price_unit * sale_order_line.product_uom_qty) as nilai_po')
@@ -33,7 +57,12 @@ class FinanceController extends Controller
                 ->leftJoin('project_project', 'sale_order_line.project_id', '=', 'project_project.id')
                 ->whereRaw(DB::raw('EXTRACT(YEAR from sale_order.date_order) = ' . $request->input('year_filter')))
                 ->where('project_project.site_type_id', '=',$request->input('site_type_filter'))
-                ->groupBy('res_partner.name', DB::raw('EXTRACT(YEAR from sale_order.date_order)'))
+                ->groupBy(
+                    'res_partner.name',
+                    DB::raw('EXTRACT(YEAR from sale_order.date_order)'),
+                    'sale_order.partner_id',
+                    'project_project.site_type_id'
+                    )
                 ->get();
 
             $project_data = $resume_project;
