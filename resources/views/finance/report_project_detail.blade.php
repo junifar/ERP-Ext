@@ -61,12 +61,30 @@
                                     <td>{{ $data->project_id }}</td>
                                     <td>{{ $data->customer_name }}</td>
                                     <td>{{ $data->project_type }}</td>
-                                    <td>Estimasi Nilai PO</td>
-                                    <td>Estimasi Budget</td>
-                                    <td>Gross Margin</td>
-                                    <td>%</td>
+                                    <td>
+                                        <div class="pull-right">
+                                            @foreach( $data->budget_plans as $values)
+                                                {{ number_format(!empty($values->estimate_po)?$values->estimate_po:0,2, ',', '.') }}
+                                            @endforeach
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @php
+                                            $estimate_po = 0;
+                                            $amount_total = 0;
+                                        @endphp
+                                        @foreach( $data->budget_plans as $values)
+                                            @php
+                                                $estimate_po = isset($values->estimate_po)?$values->estimate_po:0;
+                                                $amount_total = isset($values->amount_total)?$values->amount_total:0;
+                                            @endphp
+                                            {{ number_format(isset($values->amount_total)?$values->amount_total:0,2, ',', '.') }}
+                                        @endforeach
+                                    </td>
+                                    <td>{{ number_format($estimate_po-$amount_total,2, ',', '.') }}</td>
+                                    <td>{{ number_format(($estimate_po != 0)?(float)($estimate_po-$amount_total)/(float)$estimate_po : 0, 2) }}%</td>
                                     <td>Realisasi Budget</td>
-                                    <td>No PO</td>
+                                    <td>{{ $data->client_order_ref }}</td>
                                     <td>{{ number_format($data->nilai_po,2, ',', '.') }}</td>
                                     <td>No Invoice</td>
                                     <td>Laba / Rugi</td>

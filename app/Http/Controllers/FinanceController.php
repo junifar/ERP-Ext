@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Island;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use stdClass;
 
 class FinanceController extends Controller
 {
@@ -17,11 +18,13 @@ class FinanceController extends Controller
             ->select(
                 'sale_order_line.id',
                 'sale_order_line.project_id',
+                'project_project.id as site_project_id',
                 'project_site.name as site_name',
                 'account_analytic_account.name as project_id',
                 'res_partner.name as customer_name',
                 'project_site_type.name as project_type',
-                'sale_order_line.price_unit as nilai_po'
+                'sale_order_line.price_unit as nilai_po',
+                'sale_order.client_order_ref'
             )
             ->leftJoin('sale_order', 'sale_order_line.order_id', '=', 'sale_order.id')
             ->leftJoin('res_partner', 'sale_order.partner_id', '=', 'res_partner.id')
@@ -34,6 +37,55 @@ class FinanceController extends Controller
             ->where('sale_order.partner_id', '=', $customer_id)
             ->orderBy( 'project_site.name', 'asc')
             ->get();
+
+        $project_ids = null;
+        foreach ($resume_project as $data){
+            $isFound = False;
+            if($project_ids){
+                foreach ($project_ids as $check){
+                    if($check == $data->project_id){
+                        $isFound = True;
+                    }
+                }
+            }
+            if($isFound == False){
+                $project_ids[] = $data->site_project_id;
+            }
+        }
+
+        $project_budget_data = DB::table('budget_plan')
+            ->select(
+                'budget_plan.id',
+                'budget_plan.project_id',
+                'budget_plan.estimate_po',
+                DB::raw('sum(budget_plan_line.amount) as amount_total')
+            )
+            ->leftJoin('budget_plan_line', 'budget_plan.id', '=', 'budget_plan_line.budget_id')
+            ->groupBy(
+                'budget_plan.id',
+                'budget_plan.project_id',
+                'budget_plan.estimate_po'
+            )
+            ->whereIn('project_id', $project_ids)
+            ->get();
+
+//        return $project_budget_data;
+
+        foreach ($resume_project as $data){
+            $budget_plan = new stdClass();
+//            $budget_plan = null;
+            foreach ($project_budget_data as $check){
+                if($data->site_project_id == $check->project_id){
+                    $object = new stdClass();
+                    $object->estimate_po = $check->estimate_po;
+                    $object->amount_total = $check->amount_total;
+                    $budget_plan->append = $object;
+                }
+            }
+            $data->budget_plans = $budget_plan;
+        }
+
+//        return $resume_project;
 
         return view('finance.report_project_detail', compact('resume_project'));
     }
