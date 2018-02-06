@@ -117,6 +117,105 @@ class FinanceController extends Controller
                     )
                 ->get();
 
+            $total_penagihan = DB::table('sale_order_line')
+                ->select(
+                    'res_partner.name as customer_name',
+                    'sale_order.partner_id as customer_id',
+                    'project_project.site_type_id',
+                    DB::raw('EXTRACT(YEAR from sale_order.date_order) as year'),
+                    DB::raw('sum(account_invoice_line.price_subtotal) as nilai_penagihan')
+                )
+                ->leftJoin('sale_order', 'sale_order_line.order_id', '=', 'sale_order.id')
+                ->leftJoin('res_partner', 'sale_order.partner_id', '=', 'res_partner.id')
+                ->leftJoin('project_project', 'sale_order_line.project_id', '=', 'project_project.id')
+                ->leftJoin('account_invoice_line', 'sale_order_line.project_id', '=', 'account_invoice_line.project_id')
+                ->leftJoin('account_invoice', 'account_invoice.id', '=', 'account_invoice_line.invoice_id')
+                ->whereRaw(DB::raw('EXTRACT(YEAR from sale_order.date_order) = ' . $request->input('year_filter')))
+                ->where('project_project.site_type_id', '=',$request->input('site_type_filter'))
+                ->where('account_invoice.type', '=', 'out_invoice')
+                ->whereIn('account_invoice.state', ['open', 'received', 'paid', 'confirmed'])
+                ->groupBy(
+                    'res_partner.name',
+                    DB::raw('EXTRACT(YEAR from sale_order.date_order)'),
+                    'sale_order.partner_id',
+                    'project_project.site_type_id'
+                )
+                ->get();
+
+            $total_budget = DB::table('sale_order_line')
+                ->select(
+                    'res_partner.name as customer_name',
+                    'sale_order.partner_id as customer_id',
+                    'project_project.site_type_id',
+                    DB::raw('EXTRACT(YEAR from sale_order.date_order) as year'),
+                    DB::raw('sum(budget_plan_line.amount) as nilai_budget')
+                )
+                ->leftJoin('sale_order', 'sale_order_line.order_id', '=', 'sale_order.id')
+                ->leftJoin('res_partner', 'sale_order.partner_id', '=', 'res_partner.id')
+                ->leftJoin('project_project', 'sale_order_line.project_id', '=', 'project_project.id')
+                ->leftJoin('budget_plan', 'budget_plan.project_id', 'sale_order_line.project_id')
+                ->leftJoin('budget_plan_line', 'budget_plan_line.budget_id', 'budget_plan.id')
+                ->whereRaw(DB::raw('EXTRACT(YEAR from sale_order.date_order) = ' . $request->input('year_filter')))
+                ->where('project_project.site_type_id', '=',$request->input('site_type_filter'))
+                ->groupBy(
+                    'res_partner.name',
+                    DB::raw('EXTRACT(YEAR from sale_order.date_order)'),
+                    'sale_order.partner_id',
+                    'project_project.site_type_id'
+                )
+                ->get();
+
+            $total_budget_request = DB::table('sale_order_line')
+                ->select(
+                    'res_partner.name as customer_name',
+                    'sale_order.partner_id as customer_id',
+                    'project_project.site_type_id',
+                    DB::raw('EXTRACT(YEAR from sale_order.date_order) as year'),
+                    DB::raw('sum(budget_used_request.request) as nilai_budget_request')
+                )
+                ->leftJoin('sale_order', 'sale_order_line.order_id', '=', 'sale_order.id')
+                ->leftJoin('res_partner', 'sale_order.partner_id', '=', 'res_partner.id')
+                ->leftJoin('project_project', 'sale_order_line.project_id', '=', 'project_project.id')
+                ->leftJoin('budget_plan', 'budget_plan.project_id', '=', 'sale_order_line.project_id')
+                ->leftJoin('budget_plan_line', 'budget_plan_line.budget_id', '=', 'budget_plan.id')
+                ->leftJoin('budget_used_request', 'budget_plan_line.id', '=', 'budget_used_request.budget_item_id')
+                ->whereRaw(DB::raw('EXTRACT(YEAR from sale_order.date_order) = ' . $request->input('year_filter')))
+                ->where('project_project.site_type_id', '=',$request->input('site_type_filter'))
+                ->groupBy(
+                    'res_partner.name',
+                    DB::raw('EXTRACT(YEAR from sale_order.date_order)'),
+                    'sale_order.partner_id',
+                    'project_project.site_type_id'
+                )
+                ->get();
+
+            foreach ($resume_project as $data){
+                foreach ($total_penagihan as $check_data){
+                    if($check_data->customer_id == $data->customer_id && $check_data->site_type_id == $data->site_type_id && $check_data->year == $data->year){
+                        $data->nilai_penagihan = $check_data->nilai_penagihan;
+                        $data->persen_nilai_penagihan = ($data->nilai_po > 0)? ((float) $check_data->nilai_penagihan / (float)$data->nilai_po) * 100: 0;
+                        break;
+                    }
+                }
+
+                foreach ($total_budget as $check_data){
+                    if($check_data->customer_id == $data->customer_id && $check_data->site_type_id == $data->site_type_id && $check_data->year == $data->year){
+                        $data->nilai_budget = $check_data->nilai_budget;
+                        break;
+                    }
+                }
+
+                foreach ($total_budget_request as $check_data){
+                    if($check_data->customer_id == $data->customer_id && $check_data->site_type_id == $data->site_type_id && $check_data->year == $data->year){
+                        $data->nilai_budget_request = 0-$check_data->nilai_budget_request;
+                        $data->persen_nilai_budget_request = ($data->nilai_budget > 0) ? ((float) 0-$check_data->nilai_budget_request / (float) $data->nilai_budget) * 100: 0;
+                        break;
+                    }
+                }
+            }
+
+//            return $total_penagihan;
+
             $project_data = $resume_project;
         }
         return view('finance.report_project', compact('years', 'site_types', 'project_data'));

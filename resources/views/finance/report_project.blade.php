@@ -113,24 +113,26 @@
                                         <tbody>
                                         @php
                                             $sum_total_po = 0;
+                                            $sum_total_nilai_penagihan = 0;
                                         @endphp
                                         @foreach($project_data as $data)
                                         <tr>
                                             <td>{{ $data->customer_name }}</td>
                                             <td><div class="pull-right">{{ number_format($data->nilai_po,2, ',', '.') }}</div></td>
-                                            <td><div class="pull-right">900.000.000,00</div></td>
-                                            <td><div class="pull-right">90%</div></td>
-                                            <td><a href="#">Details</a></td>
+                                            <td><div class="pull-right">{{ number_format((isset($data->nilai_penagihan))? $data->nilai_penagihan : 0,2, ',', '.') }}</div></td>
+                                            <td><div class="pull-right">{{ number_format(isset($data->persen_nilai_penagihan)?$data->persen_nilai_penagihan:0,2) }} %</div></td>
+                                            <td><a href="{{ route('finance.report_project.detail', [$data->customer_id, $data->year, $data->site_type_id]) }}">Details</a></td>
                                         </tr>
                                         @php
                                             $sum_total_po += $data->nilai_po;
+                                            $sum_total_nilai_penagihan += (isset($data->nilai_penagihan))? $data->nilai_penagihan : 0;
                                         @endphp
                                         @endforeach
                                         <tr>
                                             <th>Sub Total</th>
                                             <th><div class="pull-right">{{ number_format($sum_total_po,2, ',', '.') }}</div></th>
-                                            <th><div class="pull-right">900.000.000,00</div></th>
-                                            <th><div class="pull-right">90%</div></th>
+                                            <th><div class="pull-right">{{ number_format($sum_total_nilai_penagihan,2, ',', '.') }}</div></th>
+                                            <th><div class="pull-right">{{ number_format(($sum_total_po > 0)?((float)$sum_total_nilai_penagihan / (float) $sum_total_po)*100:0,2) }} %</div></th>
                                             <td></td>
                                         </tr>
                                         </tbody>
@@ -149,20 +151,28 @@
                                         </tr>
                                         </thead>
                                         <tbody>
+                                        @php
+                                            $sum_total_nilai_budget = 0;
+                                            $sum_total_nilai_budget_realisasi = 0;
+                                        @endphp
                                         @foreach($project_data as $data)
                                             <tr>
                                                 <td>{{ $data->customer_name }}</td>
-                                                <td><div class="pull-right">1.000.000.000,00</div></td>
-                                                <td><div class="pull-right">900.000.000,00</div></td>
-                                                <td><div class="pull-right">90%</div></td>
-                                                <td><a href="#">Details</a></td>
+                                                <td><div class="pull-right">{{ number_format($data->nilai_budget,2, ',', '.') }}</div></td>
+                                                <td><div class="pull-right">{{ number_format($data->nilai_budget_request,2, ',', '.') }}</div></td>
+                                                <td><div class="pull-right">{{ number_format(isset($data->persen_nilai_budget_request)?$data->persen_nilai_budget_request:0,2) }} %</div></td>
+                                                <td><a href="{{ route('finance.report_project.detail', [$data->customer_id, $data->year, $data->site_type_id]) }}">Details</a></td>
                                             </tr>
+                                            @php
+                                                $sum_total_nilai_budget += (isset($data->nilai_budget))? $data->nilai_budget : 0;
+                                                $sum_total_nilai_budget_realisasi += (isset($data->nilai_budget_request))? $data->nilai_budget_request : 0;
+                                            @endphp
                                         @endforeach
                                         <tr>
                                             <th>Sub Total</th>
-                                            <th><div class="pull-right">1.000.000.000,00</div></th>
-                                            <th><div class="pull-right">900.000.000,00</div></th>
-                                            <th><div class="pull-right">90%</div></th>
+                                            <th><div class="pull-right">{{ number_format($sum_total_nilai_budget,2, ',', '.') }}</div></th>
+                                            <th><div class="pull-right">{{ number_format($sum_total_nilai_budget_realisasi,2, ',', '.') }}</div></th>
+                                            <th><div class="pull-right">{{ number_format(($sum_total_nilai_budget >0 ) ? ((float)$sum_total_nilai_budget_realisasi / (float) $sum_total_nilai_budget)*100 : 0,2) }} %</div></th>
                                             <td></td>
                                         </tr>
                                         </tbody>
@@ -191,18 +201,31 @@
                             </thead>
                             <tbody>
                             @foreach($project_data as $data)
+                                @php
+                                    $realisasi_vs_nilai_penagihan = 0;
+                                    $nilai_budget_vs_nilai_po = 0;
+                                    if(isset($data->nilai_penagihan)){
+                                        $realisasi_vs_nilai_penagihan = ($data->nilai_penagihan > 0)?(float)$data->nilai_budget_request/(float)$data->nilai_penagihan*100:0;
+                                    }
+
+                                    if(isset($data->nilai_po)){
+                                        $nilai_budget_vs_nilai_po = ($data->nilai_po > 0)?(float)$data->nilai_budget/(float)$data->nilai_po*100:0;
+                                    }
+                                    $sum_realisasi_vs_nilai_penagihan = ($sum_total_nilai_penagihan > 0)?(float)$sum_total_nilai_budget_realisasi/(float)$sum_total_nilai_penagihan*100:0;
+                                    $sum_nilai_budget_vs_nilai_po = ($sum_total_po > 0)?(float)$sum_total_nilai_budget/(float)$sum_total_po*100:0;
+                                @endphp
                                 <tr>
                                     <td>{{ $data->customer_name }}</td>
-                                    <td><div class="pull-right">1.000.000.000,00</div></td>
-                                    <td><div class="pull-right">900.000.000,00</div></td>
-                                    <td><div class="pull-right">90%</div></td>
+                                    <td><div class="pull-right">{{ number_format($realisasi_vs_nilai_penagihan,2) }} %</div></td>
+                                    <td><div class="pull-right">{{ number_format($nilai_budget_vs_nilai_po,2) }} %</div></td>
+                                    <td><div class="pull-right">{{ number_format(100-$nilai_budget_vs_nilai_po,2) }} %</div></td>
                                 </tr>
                             @endforeach
                             <tr>
                                 <th>Sub Total</th>
-                                <th><div class="pull-right">1.000.000.000,00</div></th>
-                                <th><div class="pull-right">900.000.000,00</div></th>
-                                <th><div class="pull-right">90%</div></th>
+                                <th><div class="pull-right">{{ number_format($sum_realisasi_vs_nilai_penagihan, 2) }} %</div></th>
+                                <th><div class="pull-right">{{ number_format($sum_nilai_budget_vs_nilai_po,2) }} %</div></th>
+                                <th><div class="pull-right">{{ number_format(100-$sum_nilai_budget_vs_nilai_po,2) }} %</div></th>
                             </tr>
                             </tbody>
                         </table>
