@@ -99,7 +99,7 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="tab-pane active" id="tab_2">
+                                <div class="tab-pane" id="tab_2">
                                     <table class="table table-bordered table-striped table-hover">
                                         <thead>
                                         <tr>
