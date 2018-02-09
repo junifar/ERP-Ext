@@ -200,6 +200,10 @@
                             </tr>
                             </thead>
                             <tbody>
+                            @php
+                                $sum_realisasi_vs_nilai_penagihan = 0;
+                                $sum_nilai_budget_vs_nilai_po = 0;
+                            @endphp
                             @foreach($project_data as $data)
                                 @php
                                     $realisasi_vs_nilai_penagihan = 0;

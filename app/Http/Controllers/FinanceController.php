@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Island;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 use stdClass;
 
 class FinanceController extends Controller
@@ -14,80 +15,134 @@ class FinanceController extends Controller
     }
 
     public function reportprojectdetail($customer_id, $year, $site_type_id){
-        $resume_project = DB::table('sale_order_line')
-            ->select(
-                'sale_order_line.id',
-                'sale_order_line.project_id',
-                'project_project.id as site_project_id',
-                'project_site.name as site_name',
-                'account_analytic_account.name as project_id',
-                'res_partner.name as customer_name',
-                'project_site_type.name as project_type',
-                'sale_order_line.price_unit as nilai_po',
-                'sale_order.client_order_ref'
-            )
-            ->leftJoin('sale_order', 'sale_order_line.order_id', '=', 'sale_order.id')
-            ->leftJoin('res_partner', 'sale_order.partner_id', '=', 'res_partner.id')
-            ->leftJoin('project_project', 'sale_order_line.project_id', '=', 'project_project.id')
-            ->leftJoin('project_site','project_project.site_id', '=', 'project_site.id')
-            ->leftJoin('account_analytic_account', 'project_project.analytic_account_id', '=', 'account_analytic_account.id')
-            ->leftJoin('project_site_type', 'project_project.site_type_id', '=', 'project_site_type.id')
-            ->whereRaw(DB::raw('EXTRACT(YEAR from sale_order.date_order) = ' . $year))
-            ->where('project_project.site_type_id', '=',$site_type_id)
-            ->where('sale_order.partner_id', '=', $customer_id)
-            ->orderBy( 'project_site.name', 'asc')
-            ->get();
+        $val = new stdClass();
+        $val->customer_id = $customer_id;
+        $val->year = $year;
+        $val->site_type_id = $site_type_id;
 
-        $project_ids = null;
-        foreach ($resume_project as $data){
-            $isFound = False;
-            if($project_ids){
-                foreach ($project_ids as $check){
-                    if($check == $data->project_id){
-                        $isFound = True;
+        $resume_project = $this->_report_project_detail_data($customer_id, $year, $site_type_id);
+
+        return view('finance.report_project_detail', compact('resume_project','val'));
+    }
+
+    public function reportprojectdetailexport($customer_id, $year, $site_type_id){
+        if(!$customer_id || !$year || !$site_type_id){
+            abort(404);
+        }
+        return Excel::create('reportprojectdetailexport',function($excel) use ($customer_id, $year, $site_type_id) {
+            $excel->sheet('Resume Monitoring Project', function($sheet) use ($customer_id, $year, $site_type_id) {
+                $sheet->setColumnFormat(array(
+                    'G' => '#,##0.00',
+                    'H' => '#,##0.00',
+                    'I' => '#,##0.00',
+                    'K' => '#,##0.00',
+                    'M' => '#,##0.00',
+                    'O' => '#,##0.00',
+                    'P' => '#,##0.00'
+                ));
+
+                $sheet->setWidth(array(
+                    'A' => 5,
+                    'B' => 75,
+                    'C' => 15,
+                    'D' => 15,
+                    'E' => 35,
+                    'F' => 15,
+                    'G' => 15,
+                    'H' => 15,
+                    'I' => 15,
+                    'J' => 5,
+                    'K' => 15,
+                    'L' => 35,
+                    'M' => 15,
+                    'N' => 35,
+                    'O' => 15,
+                    'P' => 15,
+                    'Q' => 5,
+                    'R' => 15
+                ));
+
+                $row = 1;
+                $sheet->Row($row++, array('Resume Monitoring Project'));
+                $sheet->Row($row++, array('Customer : ' . $customer_id));
+                $sheet->Row($row++, array('Tahun : ' . $year));
+                $sheet->Row($row++, array('Site Type : ' . $site_type_id));
+
+                $report_data = $this->_report_project_detail_data($customer_id, $year, $site_type_id);
+
+                $row++;
+                $sheet->Row($row++, array(
+                    'No', 'Nama Site', 'Start Project',
+                    'Site ID', 'Customer', 'Type Project',
+                    'Estimasi Nilai PO', 'Estimasi Budget', 'Gross Margin',
+                    '%', 'Realisasi Budget', 'No PO', 'Nilai PO',
+                    'No Inv', 'Nilai Inv', 'Laba/Rugi', '%', 'Status Inv'
+                ));
+                $row_no = 1;
+                $start_row = 0;
+                $end_row = 7;
+                $sheet->cells('A6:R6', function($cells){
+                    $cells->setBorder('thin', 'thin', 'thin', 'thin');
+                });
+                foreach ($report_data as $data){
+                    $start_row = $end_row;
+                    $row_counter = 0;
+                    foreach ($data->invoice_projects as $data_invoice){
+                        $estimate_nilai_po = 0;
+                        $amount_total = 0;
+                        $sum_nilai_invoice = 0;
+                        foreach ($data->budget_plans as $value){
+                            $estimate_nilai_po += $value->estimate_po;
+                            $amount_total += $value->amount_total;
+                        }
+                        foreach ($data->invoice_projects as $check_data){
+                            $sum_nilai_invoice += $check_data->nilai_invoice;
+                        }
+                        $sheet->Row($row++, array(
+                            ($row_no != $row_counter) ? $row_no : '',
+                            ($row_no != $row_counter) ? $data->site_name : '',
+                            ($row_no != $row_counter) ? 'Start Project' : '',
+                            ($row_no != $row_counter) ?$data->project_id : '',
+                            ($row_no != $row_counter) ?$data->customer_name : '',
+                            ($row_no != $row_counter) ?$data->project_type : '',
+                            ($row_no != $row_counter) ?$estimate_nilai_po : '',
+                            ($row_no != $row_counter) ?$amount_total : '',
+                            ($row_no != $row_counter && $estimate_nilai_po !=0) ?(float)($estimate_nilai_po-$amount_total) / (float)$estimate_nilai_po : 0,
+                            ($row_no != $row_counter) ?'%': '',
+                            ($row_no != $row_counter) ?$data->realisasi_budget : '',
+                            ($row_no != $row_counter) ?$data->client_order_ref : '',
+                            ($row_no != $row_counter) ?$data->nilai_po : '',
+                            $data_invoice->no_invoice,
+                            $data_invoice->nilai_invoice,
+                            ($row_no != $row_counter) ?$sum_nilai_invoice-$data->realisasi_budget-$data->realisasi_budget : '',
+                            ($row_no != $row_counter) ?($data->realisasi_budget > 0)? number_format((float)($sum_nilai_invoice-$data->realisasi_budget-$data->realisasi_budget)/(float)($data->realisasi_budget),2):0 .'%': '',
+                            $data_invoice->invoice_state
+                        ));
+                        $row_counter = $row_no;
+                        $end_row++;
+                    }
+                    $row_no++;
+                    for($i=$start_row; $i<=$end_row; $i++){
+                        if($i == $start_row){
+                            $sheet->cells('A'. $i .':R'. $i, function($cells){
+                                $cells->setBorder('thin', 'thin', 'none', 'thin');
+                            });
+                        }elseif($i == $end_row){
+                            $sheet->cells('A'. $i .':R'. $i, function($cells){
+                                $cells->setBorder('none', 'thin', 'none', 'thin');
+                            });
+                        }else{
+                            $sheet->cells('A'. $i .':R'. $i, function($cells){
+                                $cells->setBorder('none', 'thin', 'none', 'thin');
+                            });
+                        }
                     }
                 }
-            }
-            if($isFound == False){
-                $project_ids[] = $data->site_project_id;
-            }
-        }
-
-        $project_budget_data = DB::table('budget_plan')
-            ->select(
-                'budget_plan.id',
-                'budget_plan.project_id',
-                'budget_plan.estimate_po',
-                DB::raw('sum(budget_plan_line.amount) as amount_total')
-            )
-            ->leftJoin('budget_plan_line', 'budget_plan.id', '=', 'budget_plan_line.budget_id')
-            ->groupBy(
-                'budget_plan.id',
-                'budget_plan.project_id',
-                'budget_plan.estimate_po'
-            )
-            ->whereIn('project_id', $project_ids)
-            ->get();
-
-//        return $project_budget_data;
-
-        foreach ($resume_project as $data){
-            $budget_plan = new stdClass();
-//            $budget_plan = null;
-            foreach ($project_budget_data as $check){
-                if($data->site_project_id == $check->project_id){
-                    $object = new stdClass();
-                    $object->estimate_po = $check->estimate_po;
-                    $object->amount_total = $check->amount_total;
-                    $budget_plan->append = $object;
-                }
-            }
-            $data->budget_plans = $budget_plan;
-        }
-
-//        return $resume_project;
-
-        return view('finance.report_project_detail', compact('resume_project'));
+                $sheet->cells('A'.$end_row.':R'.$end_row, function($cells){
+                    $cells->setBorder('none', 'thin', 'thin', 'thin');
+                });
+            });
+        })->download('xls');
     }
 
     public function reportproject(Request $request){
@@ -409,5 +464,164 @@ class FinanceController extends Controller
             ->whereNotIn('id', [9, 36, 37, 38, 40, 41, 42, 43, 44, 45, 46, 47, 48, 61])
             ->select('id', 'name')
             ->pluck('name', 'id');
+    }
+
+    /**
+     * @param $customer_id
+     * @param $year
+     * @param $site_type_id
+     * @return mixed
+     */
+    private function _report_project_detail_data($customer_id, $year, $site_type_id)
+    {
+        $resume_project = DB::table('sale_order_line')
+            ->select(
+                'sale_order_line.id',
+                'sale_order_line.project_id',
+                'project_project.id as site_project_id',
+                'project_site.name as site_name',
+                'account_analytic_account.name as project_id',
+                'res_partner.name as customer_name',
+                'project_site_type.name as project_type',
+                'sale_order_line.price_unit as nilai_po',
+                'sale_order.client_order_ref'
+            )
+            ->leftJoin('sale_order', 'sale_order_line.order_id', '=', 'sale_order.id')
+            ->leftJoin('res_partner', 'sale_order.partner_id', '=', 'res_partner.id')
+            ->leftJoin('project_project', 'sale_order_line.project_id', '=', 'project_project.id')
+            ->leftJoin('project_site', 'project_project.site_id', '=', 'project_site.id')
+            ->leftJoin('account_analytic_account', 'project_project.analytic_account_id', '=', 'account_analytic_account.id')
+            ->leftJoin('project_site_type', 'project_project.site_type_id', '=', 'project_site_type.id')
+            ->whereRaw(DB::raw('EXTRACT(YEAR from sale_order.date_order) = ' . $year))
+            ->where('project_project.site_type_id', '=', $site_type_id)
+            ->where('sale_order.partner_id', '=', $customer_id)
+            ->orderBy('project_site.name', 'asc')
+            ->get();
+
+
+        $project_ids = null;
+        foreach ($resume_project as $data) {
+            $isFound = False;
+            if ($project_ids) {
+                foreach ($project_ids as $check) {
+                    if ($check == $data->project_id) {
+                        $isFound = True;
+                    }
+                }
+            }
+            if ($isFound == False) {
+                $project_ids[] = $data->site_project_id;
+            }
+        }
+
+        $invoice_project = DB::table('sale_order_line')
+            ->select(
+                'sale_order_line.project_id',
+                'sale_order_line.id',
+                'account_invoice.name as no_invoice',
+                'account_invoice.state',
+                'account_invoice_line.price_subtotal as nilai_invoice'
+            )
+            ->leftJoin('sale_order', 'sale_order_line.order_id', '=', 'sale_order.id')
+            ->leftJoin('sale_order_line_invoice_rel', 'sale_order_line_invoice_rel.order_line_id', '=', 'sale_order_line.id')
+            ->leftJoin('account_invoice_line', 'sale_order_line_invoice_rel.invoice_id', '=', 'account_invoice_line.id')
+            ->leftJoin('account_invoice', 'account_invoice.id', '=', 'account_invoice_line.invoice_id')
+            ->whereIn('sale_order_line.project_id', $project_ids)
+            ->where('account_invoice.type', '=', 'out_invoice')
+            ->whereIn('account_invoice.state', ['open', 'received', 'paid', 'confirmed'])
+            ->get();
+
+//        return $invoice_project;
+
+        $project_budget_data = DB::table('budget_plan')
+            ->select(
+                'budget_plan.id',
+                'budget_plan.project_id',
+                'budget_plan.estimate_po',
+                DB::raw('sum(budget_plan_line.amount) as amount_total')
+            )
+            ->leftJoin('budget_plan_line', 'budget_plan.id', '=', 'budget_plan_line.budget_id')
+            ->groupBy(
+                'budget_plan.id',
+                'budget_plan.project_id',
+                'budget_plan.estimate_po'
+            )
+            ->whereIn('project_id', $project_ids)
+            ->get();
+
+        $project_budget_used_request_data = DB::table('budget_plan')
+            ->select(
+                'budget_plan.id',
+                'budget_plan.project_id',
+//                'budget_used_request.request'
+                DB::raw('sum(budget_used_request.request) as amount_total')
+            )
+            ->leftJoin('budget_plan_line', 'budget_plan.id', '=', 'budget_plan_line.budget_id')
+            ->leftJoin('budget_used_request', 'budget_plan_line.id', '=', 'budget_used_request.budget_item_id')
+            ->groupBy(
+                'budget_plan.id',
+                'budget_plan.project_id'
+            )
+            ->whereIn('project_id', $project_ids)
+            ->get();
+
+        foreach ($resume_project as $data) {
+            $budget_plan = new stdClass();
+//            $budget_plan = null;
+            $id = 1;
+            foreach ($project_budget_data as $check) {
+                if ($data->site_project_id == $check->project_id) {
+                    $object = new stdClass();
+                    $object->estimate_po = $check->estimate_po;
+                    $object->amount_total = $check->amount_total;
+                    $budget_plan->$id = $object;
+                    ++$id;
+                }
+            }
+            $check = (array)$budget_plan;
+            if (empty($check)) {
+                $ids = 1;
+                $object = new stdClass();
+                $object->estimate_po = 0;
+                $object->amount_total = 0;
+                $budget_plan->$ids = $object;
+            }
+
+            $data->budget_plans = $budget_plan;
+
+            $invoice_project_list = new stdClass();
+            $ids = 0;
+            foreach ($invoice_project as $check) {
+                if ($data->site_project_id == $check->project_id) {
+                    $object = new stdClass();
+                    $object->id = $check->id;
+                    $object->no_invoice = $check->no_invoice;
+                    $object->invoice_state = $check->state;
+                    $object->nilai_invoice = $check->nilai_invoice;
+                    ++$ids;
+                    $invoice_project_list->$ids = $object;
+                }
+            }
+            $check = (array)$invoice_project_list;
+            if (empty($check)) {
+                $ids = 1;
+                $object = new stdClass();
+                $object->id = null;
+                $object->no_invoice = null;
+                $object->invoice_state = null;
+                $object->nilai_invoice = 0;
+                $invoice_project_list->$ids = $object;
+            }
+            $data->invoice_projects = $invoice_project_list;
+
+            $sum_realisasi_budget = 0;
+            foreach ($project_budget_used_request_data as $check) {
+                if ($data->site_project_id == $check->project_id) {
+                    $sum_realisasi_budget += $check->amount_total;
+                }
+            }
+            $data->realisasi_budget = $sum_realisasi_budget;
+        }
+        return $resume_project;
     }
 }

@@ -35,7 +35,7 @@
                             <tr>
                                 <th>No</th>
                                 <th>Nama Site</th>
-                                <th>Start Payment</th>
+                                <th>Start Project</th>
                                 <th>Site ID</th>
                                 <th>Customer</th>
                                 <th>Type Project</th>
@@ -47,15 +47,20 @@
                                 <th>No PO</th>
                                 <th>Nilai PO</th>
                                 <th>No Invoice</th>
+                                <th>Nilai Invoice</th>
                                 <th>Laba / Rugi</th>
                                 <th>%</th>
                                 <th>Status Inv</th>
                             </tr>
                             </thead>
                             <tbody>
+                            @php
+                                $page_num = 0;
+                                $sum_nilai_po = 0;
+                            @endphp
                             @foreach($resume_project as $data)
                                 <tr>
-                                    <td>1</td>
+                                    <td>{{ ++$page_num }}</td>
                                     <td>{{ $data->site_name }}</td>
                                     <td>$data->start_payment</td>
                                     <td>{{ $data->project_id }}</td>
@@ -64,11 +69,12 @@
                                     <td>
                                         <div class="pull-right">
                                             @foreach( $data->budget_plans as $values)
-                                                {{ number_format(!empty($values->estimate_po)?$values->estimate_po:0,2, ',', '.') }}
+                                                {{ number_format($values->estimate_po,2, ',', '.') }}
                                             @endforeach
                                         </div>
                                     </td>
                                     <td>
+                                        <div class="pull-right">
                                         @php
                                             $estimate_po = 0;
                                             $amount_total = 0;
@@ -80,20 +86,68 @@
                                             @endphp
                                             {{ number_format(isset($values->amount_total)?$values->amount_total:0,2, ',', '.') }}
                                         @endforeach
+                                        </div>
+
                                     </td>
-                                    <td>{{ number_format($estimate_po-$amount_total,2, ',', '.') }}</td>
+                                    <td><div class="pull-right">{{ number_format($estimate_po-$amount_total,2, ',', '.') }}</div></td>
                                     <td>{{ number_format(($estimate_po != 0)?(float)($estimate_po-$amount_total)/(float)$estimate_po : 0, 2) }}%</td>
-                                    <td>Realisasi Budget</td>
+                                    <td><div class="pull-right">{{ $data->realisasi_budget }}</div></td>
                                     <td>{{ $data->client_order_ref }}</td>
-                                    <td>{{ number_format($data->nilai_po,2, ',', '.') }}</td>
-                                    <td>No Invoice</td>
-                                    <td>Laba / Rugi</td>
-                                    <td>%</td>
-                                    <td>Status Inv</td>
+                                    <td><div class="pull-right">{{ number_format($data->nilai_po,2, ',', '.') }}</div></td>
+                                    <td>
+                                        @foreach($data->invoice_projects as $detail)
+                                            <div class="row col-md-12">{{ $detail->no_invoice }}</div>
+                                            {{--                                            {{ sprintf("%s - %s", $detail->id, $detail->no_invoice) }}<br/>--}}
+                                        @endforeach
+                                    </td>
+                                    <td>
+                                        @php
+                                            $subtotal_nilai_invoice = 0;
+                                        @endphp
+                                        @foreach($data->invoice_projects as $detail)
+                                            <div class="col-md-12"><div class="pull-right">{{ number_format($detail->nilai_invoice,2, ',', '.') }}</div></div>
+                                            @php
+                                                $subtotal_nilai_invoice += $detail->nilai_invoice;
+                                            @endphp
+                                        @endforeach
+                                    </td>
+                                    <td>{{ number_format($subtotal_nilai_invoice-$data->realisasi_budget, 2, ',', '.') }}</td>
+                                    <td>{{ number_format(($data->realisasi_budget != 0 )?(float)($subtotal_nilai_invoice-$data->realisasi_budget) / (float)$data->realisasi_budget:0,2) }} %</td>
+                                    <td>@foreach($data->invoice_projects as $detail)
+                                            <div class="row col-md-12">{{ $detail->invoice_state }}</div>
+                                        @endforeach</td>
                                 </tr>
+                                @php
+                                    $sum_nilai_po += $data->nilai_po;
+                                @endphp
                             @endforeach
+                                <tr>
+                                    <th>Total</th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th>0</th>
+                                    <th>0</th>
+                                    <th>-</th>
+                                    <th>-</th>
+                                    <th>0</th>
+                                    <th>-</th>
+                                    <th>0</th>
+                                    <th>-</th>
+                                    <th><div class="pull-right">{{ number_format($sum_nilai_po,2, ',', '.') }}</div></th>
+                                    <th>-</th>
+                                    <th>-</th>
+                                    <th>-</th>
+                                </tr>
                             </tbody>
                         </table>
+                    </div>
+                    <div class="row no-print">
+                        <div class="col-xs-12">
+                            <a href="{{route('finance.report_project.detail.export', [$val->customer_id, $val->year, $val->site_type_id])}}" target="_blank" class="btn btn-default"><i class="fa fa-file-excel-o"></i> To Excel</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -109,7 +163,7 @@
         $(document).ready(function(){
             var oTable = $('#project_data').DataTable({
                 scrollX: true,
-                bPaginate: true,
+                bPaginate: false,
                 searching: false,
                 ordering: false,
                 bInfo : false,
