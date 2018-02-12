@@ -20,6 +20,8 @@
             border: 1px solid black !important;
         }
     </style>
+
+    <link rel="stylesheet" href="{{asset('bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.css')}}">
 @endpush
 
 @section('content')
@@ -39,6 +41,18 @@
                                         {!! Form::select('year_filter',$years, null,['class' => 'form-control']) !!}
                                     </div>
                                 </div>
+                                <div class="form-group">
+                                    {!! Form::label('date_filter','Filter dari Tanggal', ['class' => 'col-sm-3 form-control-label']) !!}
+                                    <div class="col-sm-9">
+                                        <div class="input-group date">
+                                            <div class="input-group-addon">
+                                                <i class="fa fa-calendar"></i>
+                                            </div>
+                                            {!! Form::text('date_filter', $date_filter, ['class' => 'form-control pull-right', 'id' => 'datepicker']) !!}
+                                        </div>
+                                    </div>
+                                    <!-- /.input group -->
+                                </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -46,6 +60,11 @@
                                     <div class="col-sm-9">
                                         {!! Form::select('site_type_filter',$site_types, null,['class' => 'form-control']) !!}
                                     </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>
+                                        <div class="icheckbox_minimal-blue checked" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="minimal" checked="" style="position: absolute; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: 0%; left: 0%; display: block; width: 100%; height: 100%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div>
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -240,3 +259,14 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script src="{{asset('bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js')}}"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('#datepicker').datepicker({
+                autoclose: true
+            })
+        });
+    </script>
+@endpush

@@ -148,6 +148,10 @@ class FinanceController extends Controller
     public function reportproject(Request $request){
         $years = $this->_get_ten_years();
         $site_types = $this->_get_site_types();
+        $date_filter = '01/01/2018';
+        if($request->has('date_filter')){
+            $date_filter = $request->input('date_filter');
+        }
         $project_data = null;
         if($request->has('year_filter')){
             $resume_project = DB::table('sale_order_line')
@@ -273,7 +277,7 @@ class FinanceController extends Controller
 
             $project_data = $resume_project;
         }
-        return view('finance.report_project', compact('years', 'site_types', 'project_data'));
+        return view('finance.report_project', compact('years', 'site_types', 'project_data', 'date_filter'));
     }
 
     public function reportBudgetDept(){
