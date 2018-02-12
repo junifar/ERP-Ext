@@ -22,6 +22,7 @@
     </style>
 
     <link rel="stylesheet" href="{{asset('bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.css')}}">
+    <link rel="stylesheet" href="{{asset('bower_components/admin-lte/plugins/iCheck/all.css')}}">
 @endpush
 
 @section('content')
@@ -43,12 +44,19 @@
                                 </div>
                                 <div class="form-group">
                                     {!! Form::label('date_filter','Filter dari Tanggal', ['class' => 'col-sm-3 form-control-label']) !!}
-                                    <div class="col-sm-9">
+                                    <div class="col-sm-5">
                                         <div class="input-group date">
                                             <div class="input-group-addon">
                                                 <i class="fa fa-calendar"></i>
                                             </div>
                                             {!! Form::text('date_filter', $date_filter, ['class' => 'form-control pull-right', 'id' => 'datepicker']) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="form-group">
+                                            <label>
+                                                <input type="checkbox" class="flat-red" name="check_ignore_filter" {{ ($check_ignore_filter == 1)? 'checked' : '' }}> Check to Ignore Filter
+                                            </label>
                                         </div>
                                     </div>
                                     <!-- /.input group -->
@@ -61,11 +69,7 @@
                                         {!! Form::select('site_type_filter',$site_types, null,['class' => 'form-control']) !!}
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <label>
-                                        <div class="icheckbox_minimal-blue checked" aria-checked="false" aria-disabled="false" style="position: relative;"><input type="checkbox" class="minimal" checked="" style="position: absolute; opacity: 0;"><ins class="iCheck-helper" style="position: absolute; top: 0%; left: 0%; display: block; width: 100%; height: 100%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins></div>
-                                    </label>
-                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -102,7 +106,7 @@
                                                 <td>{{ $data->customer_name }}</td>
                                                 <td><div class="pull-right">{{ $data->total_project }}</div></td>
                                                 <td><div class="pull-right">0</div></td>
-                                                <td><a href="{{ route('finance.report_project.detail', [$data->customer_id, $data->year, $data->site_type_id]) }}">Details</a></td>
+                                                <td><a href="{{ route('finance.report_project.detail', [$data->customer_id, $data->year, $data->site_type_id, $date_filter_decode, $check_ignore_filter]) }}">Details</a></td>
                                             </tr>
                                             @php
                                                 $sum_total_project += $data->total_project;
@@ -140,7 +144,7 @@
                                             <td><div class="pull-right">{{ number_format($data->nilai_po,2, ',', '.') }}</div></td>
                                             <td><div class="pull-right">{{ number_format((isset($data->nilai_penagihan))? $data->nilai_penagihan : 0,2, ',', '.') }}</div></td>
                                             <td><div class="pull-right">{{ number_format(isset($data->persen_nilai_penagihan)?$data->persen_nilai_penagihan:0,2) }} %</div></td>
-                                            <td><a href="{{ route('finance.report_project.detail', [$data->customer_id, $data->year, $data->site_type_id]) }}">Details</a></td>
+                                            <td><a href="{{ route('finance.report_project.detail', [$data->customer_id, $data->year, $data->site_type_id, $date_filter_decode, $check_ignore_filter]) }}">Details</a></td>
                                         </tr>
                                         @php
                                             $sum_total_po += $data->nilai_po;
@@ -180,7 +184,7 @@
                                                 <td><div class="pull-right">{{ number_format($data->nilai_budget,2, ',', '.') }}</div></td>
                                                 <td><div class="pull-right">{{ number_format($data->nilai_budget_request,2, ',', '.') }}</div></td>
                                                 <td><div class="pull-right">{{ number_format(isset($data->persen_nilai_budget_request)?$data->persen_nilai_budget_request:0,2) }} %</div></td>
-                                                <td><a href="{{ route('finance.report_project.detail', [$data->customer_id, $data->year, $data->site_type_id]) }}">Details</a></td>
+                                                <td><a href="{{ route('finance.report_project.detail', [$data->customer_id, $data->year, $data->site_type_id, $date_filter_decode, $check_ignore_filter]) }}">Details</a></td>
                                             </tr>
                                             @php
                                                 $sum_total_nilai_budget += (isset($data->nilai_budget))? $data->nilai_budget : 0;
@@ -262,10 +266,17 @@
 
 @push('scripts')
     <script src="{{asset('bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js')}}"></script>
+    <script src="{{asset('bower_components/admin-lte/plugins/iCheck/icheck.min.js')}}"></script>
     <script type="text/javascript">
         $(document).ready(function(){
             $('#datepicker').datepicker({
                 autoclose: true
+            })
+
+            //Flat red color scheme for iCheck
+            $('input[type="checkbox"].flat-red, input[type="radio"].flat-red').iCheck({
+                checkboxClass: 'icheckbox_flat-green',
+                radioClass   : 'iradio_flat-green'
             })
         });
     </script>

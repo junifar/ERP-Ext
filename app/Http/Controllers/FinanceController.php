@@ -14,23 +14,23 @@ class FinanceController extends Controller
         return Island::with('provinces.cities')->get();
     }
 
-    public function reportprojectdetail($customer_id, $year, $site_type_id){
+    public function reportprojectdetail($customer_id, $year, $site_type_id, $date_filter, $check_ignore_filter){
         $val = new stdClass();
         $val->customer_id = $customer_id;
         $val->year = $year;
         $val->site_type_id = $site_type_id;
 
-        $resume_project = $this->_report_project_detail_data($customer_id, $year, $site_type_id);
+        $resume_project = $this->_report_project_detail_data($customer_id, $year, $site_type_id, $date_filter, $check_ignore_filter);
 
-        return view('finance.report_project_detail', compact('resume_project','val'));
+        return view('finance.report_project_detail', compact('resume_project','val', 'date_filter', 'check_ignore_filter'));
     }
 
-    public function reportprojectdetailexport($customer_id, $year, $site_type_id){
+    public function reportprojectdetailexport($customer_id, $year, $site_type_id, $date_filter, $check_ignore_filter){
         if(!$customer_id || !$year || !$site_type_id){
             abort(404);
         }
-        return Excel::create('reportprojectdetailexport',function($excel) use ($customer_id, $year, $site_type_id) {
-            $excel->sheet('Resume Monitoring Project', function($sheet) use ($customer_id, $year, $site_type_id) {
+        return Excel::create('reportprojectdetailexport',function($excel) use ($customer_id, $year, $site_type_id, $date_filter, $check_ignore_filter) {
+            $excel->sheet('Resume Monitoring Project', function($sheet) use ($customer_id, $year, $site_type_id, $date_filter, $check_ignore_filter) {
                 $sheet->setColumnFormat(array(
                     'G' => '#,##0.00',
                     'H' => '#,##0.00',
@@ -68,7 +68,7 @@ class FinanceController extends Controller
                 $sheet->Row($row++, array('Tahun : ' . $year));
                 $sheet->Row($row++, array('Site Type : ' . $site_type_id));
 
-                $report_data = $this->_report_project_detail_data($customer_id, $year, $site_type_id);
+                $report_data = $this->_report_project_detail_data($customer_id, $year, $site_type_id, $date_filter, $check_ignore_filter);
 
                 $row++;
                 $sheet->Row($row++, array(
@@ -148,33 +148,81 @@ class FinanceController extends Controller
     public function reportproject(Request $request){
         $years = $this->_get_ten_years();
         $site_types = $this->_get_site_types();
+        $check_ignore_filter = 0;
         $date_filter = '01/01/2018';
+
         if($request->has('date_filter')){
             $date_filter = $request->input('date_filter');
         }
+
+        if($request->has('check_ignore_filter')){
+            $check_ignore_filter = ($request->input('check_ignore_filter') == 'on')?1:0;
+        }
+
         $project_data = null;
         if($request->has('year_filter')){
-            $resume_project = DB::table('sale_order_line')
-                ->select(
-                    'res_partner.name as customer_name',
-                    'sale_order.partner_id as customer_id',
-                    'project_project.site_type_id',
-                    DB::raw('EXTRACT(YEAR from sale_order.date_order) as year'),
-                    DB::raw('count(project_project.id) as total_project'),
-                    DB::raw('sum(sale_order_line.price_unit * sale_order_line.product_uom_qty) as nilai_po')
-                )
-                ->leftJoin('sale_order', 'sale_order_line.order_id', '=', 'sale_order.id')
-                ->leftJoin('res_partner', 'sale_order.partner_id', '=', 'res_partner.id')
-                ->leftJoin('project_project', 'sale_order_line.project_id', '=', 'project_project.id')
-                ->whereRaw(DB::raw('EXTRACT(YEAR from sale_order.date_order) = ' . $request->input('year_filter')))
-                ->where('project_project.site_type_id', '=',$request->input('site_type_filter'))
-                ->groupBy(
-                    'res_partner.name',
-                    DB::raw('EXTRACT(YEAR from sale_order.date_order)'),
-                    'sale_order.partner_id',
-                    'project_project.site_type_id'
+
+            if($check_ignore_filter == 0){
+                $project_on_budget = DB::table('budget_plan')
+                    ->select(
+                        'budget_plan.project_id'
                     )
-                ->get();
+                    ->where('budget_plan.date', '>=' , $this->_convert_date($date_filter))
+                    ->distinct()
+                    ->get();
+
+                $project_on_budget_ids = null;
+                foreach ($project_on_budget as $data){
+                    $project_on_budget_ids[] = $data->project_id;
+                }
+
+                $resume_project = DB::table('sale_order_line')
+                    ->select(
+                        'res_partner.name as customer_name',
+                        'sale_order.partner_id as customer_id',
+                        'project_project.site_type_id',
+                        DB::raw('EXTRACT(YEAR from sale_order.date_order) as year'),
+                        DB::raw('count(project_project.id) as total_project'),
+                        DB::raw('sum(sale_order_line.price_unit * sale_order_line.product_uom_qty) as nilai_po')
+                    )
+                    ->leftJoin('sale_order', 'sale_order_line.order_id', '=', 'sale_order.id')
+                    ->leftJoin('res_partner', 'sale_order.partner_id', '=', 'res_partner.id')
+                    ->leftJoin('project_project', 'sale_order_line.project_id', '=', 'project_project.id')
+                    ->whereRaw(DB::raw('EXTRACT(YEAR from sale_order.date_order) = ' . $request->input('year_filter')))
+                    ->where('project_project.site_type_id', '=',$request->input('site_type_filter'))
+                    ->whereIn('sale_order_line.project_id', $project_on_budget_ids)
+                    ->groupBy(
+                        'res_partner.name',
+                        DB::raw('EXTRACT(YEAR from sale_order.date_order)'),
+                        'sale_order.partner_id',
+                        'project_project.site_type_id'
+                    )
+                    ->get();
+            }else{
+                $resume_project = DB::table('sale_order_line')
+                    ->select(
+                        'res_partner.name as customer_name',
+                        'sale_order.partner_id as customer_id',
+                        'project_project.site_type_id',
+                        DB::raw('EXTRACT(YEAR from sale_order.date_order) as year'),
+                        DB::raw('count(project_project.id) as total_project'),
+                        DB::raw('sum(sale_order_line.price_unit * sale_order_line.product_uom_qty) as nilai_po')
+                    )
+                    ->leftJoin('sale_order', 'sale_order_line.order_id', '=', 'sale_order.id')
+                    ->leftJoin('res_partner', 'sale_order.partner_id', '=', 'res_partner.id')
+                    ->leftJoin('project_project', 'sale_order_line.project_id', '=', 'project_project.id')
+                    ->whereRaw(DB::raw('EXTRACT(YEAR from sale_order.date_order) = ' . $request->input('year_filter')))
+                    ->where('project_project.site_type_id', '=',$request->input('site_type_filter'))
+                    ->groupBy(
+                        'res_partner.name',
+                        DB::raw('EXTRACT(YEAR from sale_order.date_order)'),
+                        'sale_order.partner_id',
+                        'project_project.site_type_id'
+                    )
+                    ->get();
+            }
+
+
 
             $total_penagihan = DB::table('sale_order_line')
                 ->select(
@@ -277,7 +325,10 @@ class FinanceController extends Controller
 
             $project_data = $resume_project;
         }
-        return view('finance.report_project', compact('years', 'site_types', 'project_data', 'date_filter'));
+
+        $date_filter_decode = $this->_convert_date($date_filter);
+        return view('finance.report_project', compact('years', 'site_types', 'project_data',
+            'date_filter_decode', 'date_filter', 'check_ignore_filter'));
     }
 
     public function reportBudgetDept(){
@@ -476,32 +527,72 @@ class FinanceController extends Controller
      * @param $site_type_id
      * @return mixed
      */
-    private function _report_project_detail_data($customer_id, $year, $site_type_id)
+    private function _report_project_detail_data($customer_id, $year, $site_type_id, $date_filter, $check_ignore_filter)
     {
-        $resume_project = DB::table('sale_order_line')
-            ->select(
-                'sale_order_line.id',
-                'sale_order_line.project_id',
-                'project_project.id as site_project_id',
-                'project_site.name as site_name',
-                'account_analytic_account.name as project_id',
-                'res_partner.name as customer_name',
-                'project_site_type.name as project_type',
-                'sale_order_line.price_unit as nilai_po',
-                'sale_order.client_order_ref'
-            )
-            ->leftJoin('sale_order', 'sale_order_line.order_id', '=', 'sale_order.id')
-            ->leftJoin('res_partner', 'sale_order.partner_id', '=', 'res_partner.id')
-            ->leftJoin('project_project', 'sale_order_line.project_id', '=', 'project_project.id')
-            ->leftJoin('project_site', 'project_project.site_id', '=', 'project_site.id')
-            ->leftJoin('account_analytic_account', 'project_project.analytic_account_id', '=', 'account_analytic_account.id')
-            ->leftJoin('project_site_type', 'project_project.site_type_id', '=', 'project_site_type.id')
-            ->whereRaw(DB::raw('EXTRACT(YEAR from sale_order.date_order) = ' . $year))
-            ->where('project_project.site_type_id', '=', $site_type_id)
-            ->where('sale_order.partner_id', '=', $customer_id)
-            ->orderBy('project_site.name', 'asc')
-            ->get();
+        if($check_ignore_filter == 0) {
+            $project_on_budget = DB::table('budget_plan')
+                ->select(
+                    'budget_plan.project_id'
+                )
+                ->where('budget_plan.date', '>=', $date_filter)
+                ->distinct()
+                ->get();
 
+            $project_on_budget_ids = null;
+            foreach ($project_on_budget as $data) {
+                $project_on_budget_ids[] = $data->project_id;
+            }
+
+            $resume_project = DB::table('sale_order_line')
+                ->select(
+                    'sale_order_line.id',
+                    'sale_order_line.project_id',
+                    'project_project.id as site_project_id',
+                    'project_site.name as site_name',
+                    'account_analytic_account.name as project_id',
+                    'res_partner.name as customer_name',
+                    'project_site_type.name as project_type',
+                    'sale_order_line.price_unit as nilai_po',
+                    'sale_order.client_order_ref'
+                )
+                ->leftJoin('sale_order', 'sale_order_line.order_id', '=', 'sale_order.id')
+                ->leftJoin('res_partner', 'sale_order.partner_id', '=', 'res_partner.id')
+                ->leftJoin('project_project', 'sale_order_line.project_id', '=', 'project_project.id')
+                ->leftJoin('project_site', 'project_project.site_id', '=', 'project_site.id')
+                ->leftJoin('account_analytic_account', 'project_project.analytic_account_id', '=', 'account_analytic_account.id')
+                ->leftJoin('project_site_type', 'project_project.site_type_id', '=', 'project_site_type.id')
+                ->whereRaw(DB::raw('EXTRACT(YEAR from sale_order.date_order) = ' . $year))
+                ->where('project_project.site_type_id', '=', $site_type_id)
+                ->where('sale_order.partner_id', '=', $customer_id)
+                ->whereIn('sale_order_line.project_id', $project_on_budget_ids)
+                ->orderBy('project_site.name', 'asc')
+                ->get();
+
+        }else{
+            $resume_project = DB::table('sale_order_line')
+                ->select(
+                    'sale_order_line.id',
+                    'sale_order_line.project_id',
+                    'project_project.id as site_project_id',
+                    'project_site.name as site_name',
+                    'account_analytic_account.name as project_id',
+                    'res_partner.name as customer_name',
+                    'project_site_type.name as project_type',
+                    'sale_order_line.price_unit as nilai_po',
+                    'sale_order.client_order_ref'
+                )
+                ->leftJoin('sale_order', 'sale_order_line.order_id', '=', 'sale_order.id')
+                ->leftJoin('res_partner', 'sale_order.partner_id', '=', 'res_partner.id')
+                ->leftJoin('project_project', 'sale_order_line.project_id', '=', 'project_project.id')
+                ->leftJoin('project_site', 'project_project.site_id', '=', 'project_site.id')
+                ->leftJoin('account_analytic_account', 'project_project.analytic_account_id', '=', 'account_analytic_account.id')
+                ->leftJoin('project_site_type', 'project_project.site_type_id', '=', 'project_site_type.id')
+                ->whereRaw(DB::raw('EXTRACT(YEAR from sale_order.date_order) = ' . $year))
+                ->where('project_project.site_type_id', '=', $site_type_id)
+                ->where('sale_order.partner_id', '=', $customer_id)
+                ->orderBy('project_site.name', 'asc')
+                ->get();
+        }
 
         $project_ids = null;
         foreach ($resume_project as $data) {
@@ -627,5 +718,10 @@ class FinanceController extends Controller
             $data->realisasi_budget = $sum_realisasi_budget;
         }
         return $resume_project;
+    }
+
+    private function _convert_date($value){
+        $retVal = explode("/", $value);
+        return $retVal[2] . "-" . $retVal[1] . "-" . $retVal[0];
     }
 }

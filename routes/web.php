@@ -34,8 +34,8 @@ Route::get('/financial_report/budget/detail_analyze/{id}','BudgetController@deta
 
 Route::get('/finance/report_project', 'FinanceController@reportproject')->name('finance.report_project');
 Route::post('/finance/report_project', 'FinanceController@reportproject')->name('finance.report_project');
-Route::get('/finance/report_project_detail/{customer_id}/{year}/{site_type_id}', 'FinanceController@reportprojectdetail')->name('finance.report_project.detail');
-Route::get('/finance/report_project_detail/export/{customer_id}/{year}/{site_type_id}', 'FinanceController@reportprojectdetailexport')->name('finance.report_project.detail.export');
+Route::get('/finance/report_project_detail/{customer_id}/{year}/{site_type_id}/{date_filter}/{check_ignore_filter}', 'FinanceController@reportprojectdetail')->name('finance.report_project.detail');
+Route::get('/finance/report_project_detail/export/{customer_id}/{year}/{site_type_id}/{date_filter}/{check_ignore_filter}', 'FinanceController@reportprojectdetailexport')->name('finance.report_project.detail.export');
 Route::get('/finance/report_budget_dept', 'FinanceController@reportBudgetDept')->name('finance.report_budget_dept');
 Route::get('/finance/report_budget_dept_detail/{tahun}', 'FinanceController@reportBudgetDeptDetail')->name('finance.report_budget_dept_detail');
 Route::get('/finance/test', 'FinanceController@SampleTest');

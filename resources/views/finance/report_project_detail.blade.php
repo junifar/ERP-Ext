@@ -91,7 +91,7 @@
                                     </td>
                                     <td><div class="pull-right">{{ number_format($estimate_po-$amount_total,2, ',', '.') }}</div></td>
                                     <td>{{ number_format(($estimate_po != 0)?(float)($estimate_po-$amount_total)/(float)$estimate_po : 0, 2) }}%</td>
-                                    <td><div class="pull-right">{{ $data->realisasi_budget }}</div></td>
+                                    <td><div class="pull-right">{{ number_format($data->realisasi_budget,2, ',', '.')}}</div></td>
                                     <td>{{ $data->client_order_ref }}</td>
                                     <td><div class="pull-right">{{ number_format($data->nilai_po,2, ',', '.') }}</div></td>
                                     <td>
@@ -128,15 +128,15 @@
                                     <th></th>
                                     <th></th>
                                     <th></th>
-                                    <th>0</th>
-                                    <th>0</th>
+                                    <th><div class="pull-right">0</div></th>
+                                    <th><div class="pull-right">0</div></th>
+                                    <th><div class="pull-right">0</div></th>
                                     <th>-</th>
-                                    <th>-</th>
-                                    <th>0</th>
-                                    <th>-</th>
-                                    <th>0</th>
+                                    <th><div class="pull-right">0</div></th>
                                     <th>-</th>
                                     <th><div class="pull-right">{{ number_format($sum_nilai_po,2, ',', '.') }}</div></th>
+                                    <th>-</th>
+                                    <th><div class="pull-right">0</div></th>
                                     <th>-</th>
                                     <th>-</th>
                                     <th>-</th>
@@ -146,7 +146,7 @@
                     </div>
                     <div class="row no-print">
                         <div class="col-xs-12">
-                            <a href="{{route('finance.report_project.detail.export', [$val->customer_id, $val->year, $val->site_type_id])}}" target="_blank" class="btn btn-default"><i class="fa fa-file-excel-o"></i> To Excel</a>
+                            <a href="{{route('finance.report_project.detail.export', [$val->customer_id, $val->year, $val->site_type_id, $date_filter, $check_ignore_filter])}}" target="_blank" class="btn btn-default"><i class="fa fa-file-excel-o"></i> To Excel</a>
                         </div>
                     </div>
                 </div>
