@@ -553,7 +553,9 @@ class FinanceController extends Controller
                     'sale_order_line.id',
                     'sale_order_line.project_id',
                     'project_project.id as site_project_id',
+                    'project_project.plan_start',
                     'project_site.name as site_name',
+                    'project_area.name as area_name',
                     'account_analytic_account.name as project_id',
                     'res_partner.name as customer_name',
                     'project_site_type.name as project_type',
@@ -564,6 +566,7 @@ class FinanceController extends Controller
                 ->leftJoin('res_partner', 'sale_order.partner_id', '=', 'res_partner.id')
                 ->leftJoin('project_project', 'sale_order_line.project_id', '=', 'project_project.id')
                 ->leftJoin('project_site', 'project_project.site_id', '=', 'project_site.id')
+                ->leftJoin('project_area', 'project_site.area_id', '=', 'project_area.id')
                 ->leftJoin('account_analytic_account', 'project_project.analytic_account_id', '=', 'account_analytic_account.id')
                 ->leftJoin('project_site_type', 'project_project.site_type_id', '=', 'project_site_type.id')
                 ->whereRaw(DB::raw('EXTRACT(YEAR from sale_order.date_order) = ' . $year))
@@ -579,7 +582,9 @@ class FinanceController extends Controller
                     'sale_order_line.id',
                     'sale_order_line.project_id',
                     'project_project.id as site_project_id',
+                    'project_project.plan_start',
                     'project_site.name as site_name',
+                    'project_area.name as area_name',
                     'account_analytic_account.name as project_id',
                     'res_partner.name as customer_name',
                     'project_site_type.name as project_type',
@@ -590,6 +595,7 @@ class FinanceController extends Controller
                 ->leftJoin('res_partner', 'sale_order.partner_id', '=', 'res_partner.id')
                 ->leftJoin('project_project', 'sale_order_line.project_id', '=', 'project_project.id')
                 ->leftJoin('project_site', 'project_project.site_id', '=', 'project_site.id')
+                ->leftJoin('project_area', 'project_site.area_id', '=', 'project_area.id')
                 ->leftJoin('account_analytic_account', 'project_project.analytic_account_id', '=', 'account_analytic_account.id')
                 ->leftJoin('project_site_type', 'project_project.site_type_id', '=', 'project_site_type.id')
                 ->whereRaw(DB::raw('EXTRACT(YEAR from sale_order.date_order) = ' . $year))

@@ -39,6 +39,7 @@
                                 <th>Site ID</th>
                                 <th>Customer</th>
                                 <th>Type Project</th>
+                                <th>Area</th>
                                 <th>Estimasi Nilai PO</th>
                                 <th>Estimasi Budget</th>
                                 <th>Gross Margin</th>
@@ -62,10 +63,11 @@
                                 <tr>
                                     <td>{{ ++$page_num }}</td>
                                     <td>{{ $data->site_name }}</td>
-                                    <td>$data->start_payment</td>
+                                    <td>{{ $data->plan_start }}</td>
                                     <td>{{ $data->project_id }}</td>
                                     <td>{{ $data->customer_name }}</td>
                                     <td>{{ $data->project_type }}</td>
+                                    <td>{{ $data->area_name }}</td>
                                     <td>
                                         <div class="pull-right">
                                             @foreach( $data->budget_plans as $values)
@@ -128,6 +130,7 @@
                                     <th></th>
                                     <th></th>
                                     <th></th>
+                                    <th></th>
                                     <th><div class="pull-right">0</div></th>
                                     <th><div class="pull-right">0</div></th>
                                     <th><div class="pull-right">0</div></th>
@@ -137,9 +140,9 @@
                                     <th><div class="pull-right">{{ number_format($sum_nilai_po,2, ',', '.') }}</div></th>
                                     <th>-</th>
                                     <th><div class="pull-right">0</div></th>
-                                    <th>-</th>
-                                    <th>-</th>
-                                    <th>-</th>
+                                    <th><div class="pull-right">0</div></th>
+                                    <th></th>
+                                    <th></th>
                                 </tr>
                             </tbody>
                         </table>
