@@ -35,6 +35,9 @@
         {{--izimodal--}}
         <link rel="stylesheet" href="{{asset('bower_components/izimodal/css/iziModal.min.css')}}">
 
+        <!-- bootstrap wysihtml5 - text editor -->
+        <link rel="stylesheet" href="{{ asset('bower_components/admin-lte/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css') }}">
+
         <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
         <!--[if lt IE 9]>
@@ -98,7 +101,7 @@
                     </form>
                     <!-- /.search form -->
                     <!-- sidebar menu: : style can be found in sidebar.less -->
-                    <ul class="sidebar-menu">
+                    <ul class="sidebar-menu" data-widget="tree">
                         <li class="header">MAIN NAVIGATION</li>
                         <li>
                             {{--<a href="{!! route('companies'); !!}">--}}
@@ -125,6 +128,31 @@
                                 <li><a href="{!! route('finance.report_project'); !!}"><i class="fa fa-th-large"></i> Finance - Monitoring Project</a></li>
                                 </li>
                                 <li><a href="{!! route('finance.report_budget_dept'); !!}"><i class="fa fa-th-large"></i> Finance - Monitoring Dept</a></li>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="treeview">
+                            <a href="#">
+                                <i class="fa fa-edit"></i> <span>Forms</span>
+                                <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+                            </a>
+                            <ul class="treeview-menu">
+                                <li><a href="../forms/general.html"><i class="fa fa-circle-o"></i> General Elements</a></li>
+                                <li><a href="../forms/advanced.html"><i class="fa fa-circle-o"></i> Advanced Elements</a></li>
+                                <li><a href="../forms/editors.html"><i class="fa fa-circle-o"></i> Editors</a></li>
+                            </ul>
+                        </li>
+                        <li class="treeview">
+                            <a href="#">
+                                <i class="fa fa-steam"></i> <span>Project</span>
+                                <span class="pull-right-container">
+                                <i class="fa fa-angle-left pull-right"></i>
+                                </span>
+                            </a>
+                            <ul class="treeview-menu">
+                                <li><a href="{!! route('marketing.index'); !!}"><i class="fa fa-th-list"></i> Project Packet Summary</a></li>
                                 </li>
                             </ul>
                         </li>
@@ -175,6 +203,15 @@
 
         <!-- jQuery 3 -->
         <script src="{{asset('bower_components/jquery/dist/jquery.min.js')}}"></script>
+
+        <!-- jQuery UI 1.11.4 -->
+        <script src="{{ asset('bower_components/admin-lte/plugins/jQueryUI/jquery-ui.min.js') }}"></script>
+
+        <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+        <script>
+            $.widget.bridge('uibutton', $.ui.button);
+        </script>
+
         <!-- Bootstrap 3.3.7 -->
         <script src="{{asset('bower_components/bootstrap/dist/js/bootstrap.min.js')}}"></script>
 
@@ -200,13 +237,17 @@
         <!-- jvectormap -->
         {{--<script src="{{asset('bower_components/jvectormap/jquery-jvectormap-1.2.2.min.js')}}"></script>--}}
         {{--<script src="{{asset('bower_components/jvectormap/jquery-jvectormap-world-mill-en.js')}}"></script>--}}
+
+        <!-- Bootstrap WYSIHTML5 -->
+        <script src="{{ asset('bower_components/admin-lte/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js') }}"></script>
+
         <!-- SlimScroll 1.3.0 -->
         <script src="{{asset('bower_components/jquery-slimScroll/jquery.slimscroll.min.js')}}"></script>
         <!-- ChartJS 1.0.1 -->
         <script src="{{asset('bower_components/chart.js/Chart.min.js')}}"></script>
 
         <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-        {{--<script src="{{asset('plugins/AdminLTE/dist/js/pages/dashboard2.js')}}"></script>--}}
+{{--        <script src="{{asset('plugins/AdminLTE/dist/js/pages/dashboard2.js')}}"></script>--}}
         <!-- AdminLTE for demo purposes -->
 
         <script src="{{asset('bower_components/admin-lte/dist/js/demo.js')}}"></script>
