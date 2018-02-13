@@ -170,7 +170,9 @@ class FinanceController extends Controller
                     ->where('budget_plan.date', '>=' , $this->_convert_date($date_filter))
                     ->distinct()
                     ->get();
+//                return $project_on_budget;
 
+//                if(!empty($project_on_budget)):
                 $project_on_budget_ids = null;
                 foreach ($project_on_budget as $data){
                     $project_on_budget_ids[] = $data->project_id;
@@ -198,6 +200,9 @@ class FinanceController extends Controller
                         'project_project.site_type_id'
                     )
                     ->get();
+//                else:
+//                    $resume_project = null;
+//                endif;
             }else{
                 $resume_project = DB::table('sale_order_line')
                     ->select(
@@ -722,6 +727,6 @@ class FinanceController extends Controller
 
     private function _convert_date($value){
         $retVal = explode("/", $value);
-        return $retVal[2] . "-" . $retVal[1] . "-" . $retVal[0];
+        return $retVal[2] . "-" . $retVal[0] . "-" . $retVal[1];
     }
 }
