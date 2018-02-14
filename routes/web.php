@@ -26,6 +26,9 @@ Route::get('/site/export/{id}', 'SiteController@export')->name('site.export');
 Route::get('/dashboard', 'DashboardController@index')->name('dashboard');
 Route::get('/dashboard/data', 'DashboardController@data')->name('dashboard.data');
 
+Route::get('/project/paket_project', 'ProjectController@project_batch')->name('project.project_batch');
+Route::get('/project/paket_project_detail/{packet_id}/{customer_id}', 'ProjectController@project_batch_detail')->name('project.project_batch_detail');
+
 Route::get('/', 'BudgetController@report')->name('site.report.budget');
 Route::get('/financial_report/budget', 'BudgetController@report')->name('site.report.budget');
 Route::get('/financial_report/budget/data', 'BudgetController@reportdata')->name('site.report.budget.data');

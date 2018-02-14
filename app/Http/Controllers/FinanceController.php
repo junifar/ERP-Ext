@@ -415,7 +415,7 @@ class FinanceController extends Controller
         $budget_plan_ids = null;
 
         foreach ($budget_plan_line_datas as $data){
-            $budget_plan_ids[] = $data->budget_plan_id;
+            $budget_plan_ids[$data->id] = $data->id;
         }
 
         $budget_plan_request = DB::table('budget_used_request')
@@ -429,7 +429,12 @@ class FinanceController extends Controller
             ->whereIn('budget_used_request.budget_item_id', $budget_plan_ids)
             ->get();
 
+//        return $budget_plan_request;
+//        return $budget_plan_ids;
+
         $budget_plan_line_departments = $this->_reportBudgetDeptDetailGetDeptName($budget_plan_line_datas, $budget_plan_request);
+
+//        return $budget_plan_line_departments;
 
         return view('finance.report_budget_dept_detail', compact('tahun', 'budget_plan_line_datas',
             'budget_plan_line_departments'));
@@ -483,8 +488,8 @@ class FinanceController extends Controller
 
                             $nilai_pengajuan = 0;
                             foreach ($budget_plan_request as $nilai_pengajuan_data){
-                                if($nilai_pengajuan_data->budget_item_id == $data_check_budget_data->budget_plan_id){
-                                    $nilai_pengajuan = $nilai_pengajuan_data->total;
+                                if($nilai_pengajuan_data->budget_item_id == $data_check_budget_data->id){
+                                    $nilai_pengajuan = 0-$nilai_pengajuan_data->total;
                                     break;
                                 }
                             }
@@ -494,7 +499,7 @@ class FinanceController extends Controller
                                 'name' => $data_check_budget_data->name,
                                 'amount' => $data_check_budget_data->amount,
                                 'nilai_pengajuan' => $nilai_pengajuan,
-                                'sisa_budget' => $data_check_budget_data->amount + $nilai_pengajuan,
+                                'sisa_budget' => $data_check_budget_data->amount - $nilai_pengajuan,
 //                                ((float)($data_check_budget_data->amount + $nilai_pengajuan)) / ((float)$data_check_budget_data->amount) * 100
                                 'persentase_budget' => 9999
                             );
