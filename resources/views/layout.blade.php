@@ -133,6 +133,18 @@
                         </li>
                         <li class="treeview">
                             <a href="#">
+                                <i class="fa fa-money"></i> <span>Finance</span>
+                                <span class="pull-right-container">
+                                <i class="fa fa-angle-left pull-right"></i>
+                                </span>
+                            </a>
+                            <ul class="treeview-menu">
+                                <li><a href="{!! route('finance.report_project_budget'); !!}"><i class="fa fa-th-list"></i> Finance - Project Budget</a></li>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="treeview">
+                            <a href="#">
                                 <i class="fa fa-steam"></i> <span>Project</span>
                                 <span class="pull-right-container">
                                 <i class="fa fa-angle-left pull-right"></i>

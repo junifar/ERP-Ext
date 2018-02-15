@@ -331,8 +331,191 @@ class FinanceController extends Controller
             $project_data = $resume_project;
         }
 
+        return $project_data;
+
         $date_filter_decode = $this->_convert_date($date_filter);
         return view('finance.report_project', compact('years', 'site_types', 'project_data',
+            'date_filter_decode', 'date_filter', 'check_ignore_filter'));
+    }
+
+    public function reportprojectbudget(Request $request){
+        $years = $this->_get_ten_years();
+        $site_types = $this->_get_site_types();
+        $check_ignore_filter = 0;
+        $date_filter = '01/01/2018';
+
+        if($request->has('date_filter')){
+            $date_filter = $request->input('date_filter');
+        }
+
+        if($request->has('check_ignore_filter')){
+            $check_ignore_filter = ($request->input('check_ignore_filter') == 'on')?1:0;
+        }
+
+        $project_data = null;
+        if($request->has('year_filter')){
+
+            $budget_project_list = DB::table('budget_plan')
+                ->select(
+                    'budget_plan.project_id'
+                )
+                ->leftJoin('project_project', 'project_project.id', '=', 'budget_plan.project_id')
+                ->whereRaw(DB::raw('EXTRACT(YEAR from budget_plan.periode_start) = ' . $request->input('year_filter')))
+                ->where('project_project.site_type_id', '=',$request->input('site_type_filter'))
+                ->distinct()
+                ->get();
+
+            $budget_customer_datas = DB::table('budget_plan')
+                ->select(
+                    'res_partner.id as customer_id',
+                    'res_partner.name as customer_name',
+                    'project_project.site_type_id',
+                    DB::raw('sum(budget_plan.estimate_po) as estimate_po'),
+                    DB::raw('count(budget_plan.id) as total_project'),
+                    DB::raw('EXTRACT(YEAR from budget_plan.periode_start) as year')
+                )
+                ->leftJoin('project_project', 'project_project.id', '=', 'budget_plan.project_id')
+                ->leftJoin('project_site', 'project_project.site_id', '=', 'project_site.id')
+                ->leftJoin('res_partner', 'res_partner.id', '=', 'project_site.customer_id')
+                ->where('budget_plan.type', '=', 'project')
+                ->whereRaw(DB::raw('EXTRACT(YEAR from budget_plan.periode_start) = ' . $request->input('year_filter')))
+                ->where('project_project.site_type_id', '=',$request->input('site_type_filter'))
+                ->groupBy(
+                    'res_partner.id',
+                    'res_partner.name',
+                    'project_project.site_type_id',
+                    DB::raw('EXTRACT(YEAR from budget_plan.periode_start)')
+                )
+                ->get();
+
+            $budget_plan_datas = DB::table('budget_plan')
+                ->select(
+                    'res_partner.id as customer_id',
+                    DB::raw('sum(budget_plan_line.amount) as total_nilai_budget')
+                )
+                ->leftJoin('budget_plan_line', 'budget_plan.id', '=', 'budget_plan_line.budget_id')
+                ->leftJoin('project_project', 'project_project.id', '=', 'budget_plan.project_id')
+                ->leftJoin('project_site', 'project_project.site_id', '=', 'project_site.id')
+                ->leftJoin('res_partner', 'res_partner.id', '=', 'project_site.customer_id')
+                ->where('budget_plan.type', '=', 'project')
+                ->whereRaw(DB::raw('EXTRACT(YEAR from budget_plan.periode_start) = ' . $request->input('year_filter')))
+                ->where('project_project.site_type_id', '=',$request->input('site_type_filter'))
+                ->groupBy(
+                    'res_partner.id'
+                )
+                ->get();
+
+            foreach ($budget_customer_datas as $data){
+                foreach ($budget_plan_datas as $check){
+                    if($data->customer_id == $check->customer_id){
+                        $data->nilai_budget = $check->total_nilai_budget;
+                        break;
+                    }
+                }
+            }
+
+            $budget_used_request_datas = DB::table('budget_plan')
+                ->select(
+                    'res_partner.id as customer_id',
+                    DB::raw('sum(budget_used.amount) as total_realisasi_budget')
+                )
+                ->leftJoin('budget_plan_line', 'budget_plan.id', '=', 'budget_plan_line.budget_id')
+                ->leftJoin('project_project', 'project_project.id', '=', 'budget_plan.project_id')
+                ->leftJoin('project_site', 'project_project.site_id', '=', 'project_site.id')
+                ->leftJoin('res_partner', 'res_partner.id', '=', 'project_site.customer_id')
+                ->leftJoin('budget_used', 'budget_used.budget_item_id', '=', 'budget_plan_line.id')
+                ->where('budget_plan.type', '=', 'project')
+                ->whereRaw(DB::raw('EXTRACT(YEAR from budget_plan.periode_start) = ' . $request->input('year_filter')))
+                ->where('project_project.site_type_id', '=',$request->input('site_type_filter'))
+                ->groupBy(
+                    'res_partner.id'
+                )
+                ->get();
+
+            foreach ($budget_customer_datas as $data){
+                foreach ($budget_used_request_datas as $check){
+                    if($data->customer_id == $check->customer_id){
+                        $data->nilai_budget_request = 0-$check->total_realisasi_budget;
+                        break;
+                    }
+                }
+            }
+
+            $sale_order_datas = DB::table('sale_order_line')
+                ->select(
+                    'sale_order.partner_id as customer_id',
+                    DB::raw('sum(account_invoice_line.price_subtotal) as total_nilai_penagihan')
+                )
+                ->leftJoin('sale_order', 'sale_order_line.order_id', '=', 'sale_order.id')
+                ->leftJoin('res_partner', 'sale_order.partner_id', '=', 'res_partner.id')
+                ->leftJoin('project_project', 'sale_order_line.project_id', '=', 'project_project.id')
+                ->leftJoin('account_invoice_line', 'sale_order_line.project_id', '=', 'account_invoice_line.project_id')
+                ->leftJoin('account_invoice', 'account_invoice.id', '=', 'account_invoice_line.invoice_id')
+                ->whereRaw(DB::raw('EXTRACT(YEAR from sale_order.date_order) = ' . $request->input('year_filter')))
+                ->where('project_project.site_type_id', '=',$request->input('site_type_filter'))
+                ->where('account_invoice.type', '=', 'out_invoice')
+                ->whereIn('account_invoice.state', ['open', 'received', 'paid', 'confirmed'])
+                ->groupBy(
+                    'sale_order.partner_id'
+                )
+                ->get();
+
+            foreach ($budget_customer_datas as $data){
+                foreach ($sale_order_datas as $check){
+                    if($data->customer_id == $check->customer_id){
+                        $data->nilai_penagihan = $check->total_nilai_penagihan;
+                        break;
+                    }
+                }
+            }
+
+            $project_list = null;
+            foreach ($budget_project_list as $data){
+                $project_list[] = $data->project_id;
+            }
+
+            $sale_order_datas = null;
+
+            if($project_list!=null){
+                $sale_order_datas = DB::table('sale_order_line')
+                    ->select(
+                        'sale_order.partner_id as customer_id',
+                        DB::raw('sum(sale_order_line.price_unit * sale_order_line.product_uom_qty) as total_nilai_po')
+                    )
+                    ->leftJoin('sale_order', 'sale_order_line.order_id', '=', 'sale_order.id')
+                    ->leftJoin('res_partner', 'sale_order.partner_id', '=', 'res_partner.id')
+                    ->leftJoin('project_project', 'sale_order_line.project_id', '=', 'project_project.id')
+                    ->whereRaw(DB::raw('EXTRACT(YEAR from sale_order.date_order) = ' . $request->input('year_filter')))
+                    ->where('project_project.site_type_id', '=',$request->input('site_type_filter'))
+                    ->whereIn('sale_order_line.project_id', $project_list)
+                    ->groupBy(
+                        'res_partner.name',
+                        DB::raw('EXTRACT(YEAR from sale_order.date_order)'),
+                        'sale_order.partner_id',
+                        'project_project.site_type_id'
+                    )
+                    ->get();
+            }
+
+            foreach ($budget_customer_datas as $data){
+                foreach ($sale_order_datas as $check){
+                    if($data->customer_id == $check->customer_id){
+                        $data->nilai_po = $check->total_nilai_po;
+                        break;
+                    }
+                }
+                if(!isset($data->nilai_po)){
+                    $data->nilai_po = 0;
+                }
+                $data->persen_nilai_penagihan = ($data->nilai_po > 0)? ((float) $data->nilai_penagihan / (float)$data->nilai_po) * 100: 0;
+                $data->persen_nilai_budget_request = ($data->nilai_budget > 0) ? ((float) $data->nilai_budget_request / (float) $data->nilai_budget) * 100: 0;
+            }
+
+            $project_data = $budget_customer_datas;
+        }
+
+        $date_filter_decode = $this->_convert_date($date_filter);
+        return view('finance.report_project_budget', compact('years', 'site_types', 'project_data',
             'date_filter_decode', 'date_filter', 'check_ignore_filter'));
     }
 
@@ -739,5 +922,73 @@ class FinanceController extends Controller
     private function _convert_date($value){
         $retVal = explode("/", $value);
         return $retVal[2] . "-" . $retVal[0] . "-" . $retVal[1];
+    }
+
+    /**
+     * @param $datas
+     * @return array
+     */
+    private function _get_budget_customer_po_datas($datas, $year, $project_type_id)
+    {
+        $budget_customer_po_datas = DB::table('budget_plan')
+            ->select(
+                'res_partner.id as customer_id',
+                'res_partner.name as customer_name'
+            )
+            ->leftJoin('budget_plan_line', 'budget_plan_line.budget_id', '=', 'budget_plan.id')
+            ->leftJoin('project_project', 'budget_plan.project_id', '=', 'project_project.id')
+            ->leftJoin('sale_order_line', 'sale_order_line.project_id', '=', 'project_project.id')
+            ->leftJoin('sale_order', 'sale_order_line.order_id', '=', 'sale_order.id')
+            ->leftJoin('res_partner', 'sale_order.partner_id', '=', 'res_partner.id')
+            ->where('budget_plan.type', '=', 'project')
+            ->whereRaw(DB::raw('EXTRACT(YEAR from budget_plan.periode_start) = ' . $year))
+            ->where('project_project.site_type_id', '=', $project_type_id)
+            ->distinct()
+            ->get();
+
+        foreach ($budget_customer_po_datas as $data) {
+            $obj = new stdClass();
+            $obj->customer_id = $data->customer_id;
+            $obj->customer_name = $data->customer_name;
+            $datas[] = $obj;
+        }
+        return $datas;
+    }
+
+    /**
+     * @param $datas
+     * @return array
+     */
+    private function _get_budget_customer_mi_datas($datas, $year, $project_type_id)
+    {
+        $budget_customer_mi_datas = DB::table('budget_plan')
+            ->select(
+                'res_partner.id as customer_id',
+                'res_partner.name as customer_name'
+            )
+            ->leftJoin('sale_memo_internal', 'sale_memo_internal.id', '=', 'budget_plan.mi_id')
+            ->leftJoin('project_project', 'budget_plan.project_id', '=', 'project_project.id')
+            ->leftJoin('res_partner', 'sale_memo_internal.partner_id', '=', 'res_partner.id')
+            ->where('budget_plan.type', '=', 'project')
+            ->whereRaw(DB::raw('EXTRACT(YEAR from budget_plan.periode_start) = ' . $year))
+            ->where('project_project.site_type_id', '=', $project_type_id)
+            ->distinct()
+            ->get();
+
+        foreach ($budget_customer_mi_datas as $data) {
+            $is_found = false;
+            foreach ($datas as $check) {
+                if ($check->customer_id == $data->customer_id) {
+                    $is_found = true;
+                }
+            }
+            if (!$is_found) {
+                $obj = new stdClass();
+                $obj->customer_id = $data->customer_id;
+                $obj->customer_name = $data->customer_name;
+                $datas[] = $obj;
+            }
+        }
+        return $datas;
     }
 }
