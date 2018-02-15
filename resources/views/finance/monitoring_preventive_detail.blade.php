@@ -35,17 +35,33 @@
 								<tr>
 									<td rowspan="2" class="text-center">Nomor PO </td>
 									<td colspan="2">Jan</td>
-									<td colspan="3">Feb</td>
+									<td colspan="2">Februari</td>
+									<td colspan="2">Maret</td>
+									
 								</tr>
 								<tr>
 									<td>Nomor PO</td>	
-									<td>Nilai PO</td>				
+									<td>Nilai PO</td>
+									<td>Nomor PO</td>	
+									<td>Nilai PO</td>
+									<td>Nomor PO</td>	
+									<td>Nilai PO</td>									
 								</tr>
-								
+						<!-- Januari -->		
 								<tr>
 									<td class="text-center">026/OM/BBSC/I-2016/Collo-TSEL</td>
 									<td>1.200.0000</td>
-									<td>1.200.000</td>
+									<td>1.200.0000</td>
+									<td>1.200.0000</td>
+									<td>1.200.0000</td>
+									<td>1.200.0000</td>
+									<td>1.200.0000</td>
+								</tr>
+								
+								
+						<!-- End Januari -->
+								
+								<tr>
 								</tr>
 								
 							</table>

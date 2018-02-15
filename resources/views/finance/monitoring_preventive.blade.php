@@ -86,9 +86,7 @@
                                <tr>
 								<th>Tahun</th>
 								<th>Customer</th>
-                                <th>Nomor PO</th>
-                                <th>Nilai PO</th>
-                                <th>Nilai Penagihan</th>
+                               
 								<th>Tools</th>
                                </tr>
                             </thead>
@@ -96,9 +94,7 @@
                           <tr>
 								<td>2016</td>
 								<td>BBSC</td>
-                                <td>026/OM/BBSC/I-2016/Collo-TSEL</td>
-                                <td>1.200.0000</td>
-                                <td>1.200.000</td>  
+                               
 								<td><a href="{!! route('finance.monitoring_preventive_detail'); !!}">Show</a></td>
                           </tr>
                           </tbody>
