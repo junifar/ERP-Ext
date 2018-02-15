@@ -81,20 +81,30 @@
                     <table class="table table-bordered table-striped table-hover">
                             <thead>
                                 <tr>
-                                    <th colspan="6" class="text-center"><h3>Preventive Info</h3></th>
+                                    <th colspan="9" class="text-center"><h3>Preventive Info</h3></th>
                                 </tr>
                                <tr>
-								<th>Tahun</th>
-								<th>Customer</th>
-                               
+								<th>Nomor SO</th>
+								<th> Nilai SO</th>
+                                <th>Nilai Penagihan </th>
+								<th>% Penagihan</th>
+								<th>Nilai Budget</th>
+								<th>Nilai Realisasi</th>
+								<th>% Budget</th>
+								<th>Laba/Rugi</th>
 								<th>Tools</th>
                                </tr>
                             </thead>
                           <tbody>
                           <tr>
-								<td>2016</td>
-								<td>BBSC</td>
-                               
+								<td>026/OM/BBSC/I-2016/Collo-TSEL</td>
+								<td>171.600.000</td>
+								<td>170.400.000</td>
+								<td>0%</td>
+								<td>171.600.000</td>
+								<td>171.600.000</td>
+								<td>0 %</td>
+								<td>17.0400.00</td>
 								<td><a href="{!! route('finance.monitoring_preventive_detail'); !!}">Show</a></td>
                           </tr>
                           </tbody>
@@ -119,15 +129,17 @@
                                 </tr>
                                <tr>
 								<th>Customer</th>
-                                <th>Tanggal Pembayaran</th>
+								<th>Nilai Budget</th>
+								<th>Nilai PO</th>
                                 <th>Nilai Budget : Nilai PO</th>
                                </tr>
                             </thead>
                           <tbody>
                           <tr>
 								<td>BBSC</td>
-                                <td>4 May 2016</td>
-                                <td>0 %</td>								
+								<td>170.400.000</td>
+								<td>171.600.000</td>
+                                <td>100 %</td>								
                           </tr>
                           </tbody>
                     </table>
