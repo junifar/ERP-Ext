@@ -331,7 +331,7 @@ class FinanceController extends Controller
             $project_data = $resume_project;
         }
 
-        return $project_data;
+//        return $project_data;
 
         $date_filter_decode = $this->_convert_date($date_filter);
         return view('finance.report_project', compact('years', 'site_types', 'project_data',
