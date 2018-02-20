@@ -25,6 +25,162 @@ class FinanceController extends Controller
         return view('finance.report_project_detail', compact('resume_project','val', 'date_filter', 'check_ignore_filter'));
     }
 
+    public function reportprojectbudgetdetail($customer_id, $year, $site_type_id){
+        $val = new stdClass();
+        $val->customer_id = $customer_id;
+        $val->year = $year;
+        $val->site_type_id = $site_type_id;
+
+        $budget_detail_data = DB::table('budget_plan')
+            ->select(
+                'res_partner.id as id',
+                'account_analytic_account.name as prasetia_project_id',
+                'account_analytic_account.date_start as project_start',
+                'project_site.name as site_name',
+                'project_area.name as area_name',
+                'res_partner.name as customer_name',
+                'project_project.site_type_id as project_type',
+                'budget_plan.estimate_po',
+                'budget_plan.id as budget_id',
+                'project_project.id as project_id',
+                DB::raw('EXTRACT(YEAR from budget_plan.periode_start) as year'),
+                DB::raw('SUM(budget_plan_line.amount) as nilai_budget')
+            )
+            ->leftJoin('project_project', 'project_project.id', '=', 'budget_plan.project_id')
+            ->leftJoin('account_analytic_account', 'project_project.analytic_account_id', '=', 'account_analytic_account.id')
+            ->leftJoin('project_site', 'project_project.site_id', '=', 'project_site.id')
+            ->leftJoin('res_partner', 'res_partner.id', '=', 'project_site.customer_id')
+            ->leftJoin('project_area' , 'project_area.id', '=', 'project_project.area_id')
+            ->leftJoin('budget_plan_line', 'budget_plan.id', '=', 'budget_plan_line.budget_id')
+            ->where('budget_plan.type', '=', 'project')
+            ->whereRaw(DB::raw('EXTRACT(YEAR from budget_plan.periode_start) = ' . $year))
+            ->where('project_project.site_type_id', '=',$site_type_id)
+            ->where('project_site.customer_id', '=', $customer_id)
+            ->groupBy(
+                'res_partner.id',
+                'account_analytic_account.name',
+                'account_analytic_account.date_start',
+                'project_site.name',
+                'project_area.name',
+                'res_partner.name',
+                'project_project.site_type_id',
+                'budget_plan.estimate_po',
+                'budget_plan.id',
+                'project_project.id',
+                DB::raw('EXTRACT(YEAR from budget_plan.periode_start)')
+            )
+            ->get();
+
+        $budget_used_request_data = DB::table('budget_plan')
+            ->select(
+                'project_project.id as project_id',
+                DB::raw('0-sum(budget_used_request.request) as realisasi_budget')
+            )
+            ->leftJoin('project_project', 'project_project.id', '=', 'budget_plan.project_id')
+            ->leftJoin('project_site', 'project_project.site_id', '=', 'project_site.id')
+            ->leftJoin('budget_plan_line', 'budget_plan.id', '=', 'budget_plan_line.budget_id')
+            ->leftJoin('budget_used_request', 'budget_plan_line.id', '=', 'budget_used_request.budget_item_id')
+            ->where('budget_plan.type', '=', 'project')
+            ->whereRaw(DB::raw('EXTRACT(YEAR from budget_plan.periode_start) = ' . $year))
+            ->where('project_project.site_type_id', '=',$site_type_id)
+            ->where('project_site.customer_id', '=', $customer_id)
+            ->groupBy(
+                'project_project.id'
+            )
+            ->get();
+
+        $project_ids = null;
+        foreach ($budget_detail_data as $data){
+            $project_ids[$data->project_id] = $data->project_id;
+        }
+
+        $sale_order_list = null;
+        $account_invoice_list = null;
+        if($project_ids!=null){
+            $sale_order_list = DB::table('sale_order_line')
+                ->select(
+                    'sale_order_line.project_id',
+                    'sale_order_line.id',
+                    'sale_order.client_order_ref',
+                    DB::raw('product_uom_qty * price_unit as nilai_po')
+                )
+                ->leftJoin('sale_order', 'sale_order.id', '=', 'sale_order_line.order_id')
+                ->whereIn('sale_order.state', ['sent', 'manual', 'invoice_except', 'progress'])
+                ->whereIn('sale_order_line.project_id', $project_ids)
+                ->get();
+
+            $account_invoice_list = DB::table('sale_order_line')
+                ->select(
+                    'sale_order_line.project_id',
+                    'account_invoice.name',
+                    'account_invoice.state',
+                    DB::raw('sum(account_invoice_line.price_subtotal) as total_invoice')
+                )
+                ->leftJoin('sale_order', 'sale_order.id', '=', 'sale_order_line.order_id')
+                ->leftJoin('sale_order_line_invoice_rel', 'sale_order_line_invoice_rel.order_line_id', '=', 'sale_order_line.id')
+                ->leftJoin('account_invoice', 'account_invoice.id', '=', 'sale_order_line_invoice_rel.invoice_id')
+                ->leftJoin('account_invoice_line', 'account_invoice.id', '=', 'account_invoice_line.invoice_id')
+                ->whereIn('account_invoice.state', ['open', 'paid', 'received', 'confirmed'])
+                ->whereIn('sale_order_line.project_id', $project_ids)
+                ->groupBy(
+                    'sale_order_line.project_id',
+                    'account_invoice.name',
+                    'account_invoice.state'
+                )
+                ->get();
+        }
+
+        foreach ($budget_detail_data as $data){
+            $sum_nilai_po = 0;
+            $client_order_ref = null;
+            foreach ($sale_order_list as $check){
+                if($data->project_id == $check->project_id){
+                    $sum_nilai_po += $check->nilai_po;
+                    $client_order_ref = $check->client_order_ref;
+                }
+            }
+            $data->nilai_po = $sum_nilai_po;
+            $data->client_order_ref = $client_order_ref;
+
+            $invoice_projects = null;
+            foreach ($account_invoice_list as $check){
+                if($data->project_id == $check->project_id){
+                    $invoices = new stdClass();
+                    $invoices->no_invoice = $check->name;
+                    $invoices->invoice_state = $check->state;
+                    $invoices->nilai_invoice = $check->total_invoice;
+                    $invoice_projects[] = $invoices;
+                }
+            }
+
+            if($invoice_projects == null){
+                $invoices = new stdClass();
+                $invoices->no_invoice = null;
+                $invoices->invoice_state = null;
+                $invoices->nilai_invoice = null;
+                $invoice_projects[] = $invoices;
+            }
+
+            $data->invoice_projects = $invoice_projects;
+
+            $realisasi_budget = 0;
+            foreach ($budget_used_request_data as $check){
+                if($data->project_id == $check->project_id){
+                    $realisasi_budget += $check->realisasi_budget;
+                }
+            }
+
+            $data->realisasi_budget = $realisasi_budget;
+        }
+
+//        return $budget_detail_data;
+
+//        $resume_project = $this->_report_project_detail_data($customer_id, $year, $site_type_id, $date_filter, $check_ignore_filter);
+        $resume_project = $budget_detail_data;
+
+        return view('finance.report_project_budget_detail', compact('resume_project','val', 'date_filter', 'check_ignore_filter'));
+    }
+
     public function reportprojectdetailexport($customer_id, $year, $site_type_id, $date_filter, $check_ignore_filter){
         if(!$customer_id || !$year || !$site_type_id){
             abort(404);
@@ -341,8 +497,6 @@ class FinanceController extends Controller
     public function reportprojectbudget(Request $request){
         $years = $this->_get_ten_years();
         $site_types = $this->_get_site_types();
-        $check_ignore_filter = 0;
-        $date_filter = '01/01/2018';
 
         if($request->has('date_filter')){
             $date_filter = $request->input('date_filter');
@@ -514,9 +668,8 @@ class FinanceController extends Controller
             $project_data = $budget_customer_datas;
         }
 
-        $date_filter_decode = $this->_convert_date($date_filter);
         return view('finance.report_project_budget', compact('years', 'site_types', 'project_data',
-            'date_filter_decode', 'date_filter', 'check_ignore_filter'));
+            'date_filter_decode'));
     }
 
     public function reportBudgetDept(){

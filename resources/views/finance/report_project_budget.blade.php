@@ -87,7 +87,7 @@
                                                 <td>{{ $data->customer_name }}</td>
                                                 <td><div class="pull-right">{{ $data->total_project }}</div></td>
                                                 <td><div class="pull-right">0</div></td>
-                                                <td><a href="{{ route('finance.report_project.detail', [$data->customer_id, $data->year, $data->site_type_id, $date_filter_decode, $check_ignore_filter]) }}">Details</a></td>
+                                                <td><a href="{{ route('finance.report_project_budget.detail', [$data->customer_id, $data->year, $data->site_type_id]) }}">Details</a></td>
                                             </tr>
                                             @php
                                                 $sum_total_project += $data->total_project;
@@ -125,7 +125,7 @@
                                                 <td><div class="pull-right">{{ number_format($data->nilai_po,2, ',', '.') }}</div></td>
                                                 <td><div class="pull-right">{{ number_format((isset($data->nilai_penagihan))? $data->nilai_penagihan : 0,2, ',', '.') }}</div></td>
                                                 <td><div class="pull-right">{{ number_format(isset($data->persen_nilai_penagihan)?$data->persen_nilai_penagihan:0,2) }} %</div></td>
-                                                <td><a href="{{ route('finance.report_project.detail', [$data->customer_id, $data->year, $data->site_type_id, $date_filter_decode, $check_ignore_filter]) }}">Details</a></td>
+                                                <td><a href="{{ route('finance.report_project_budget.detail', [$data->customer_id, $data->year, $data->site_type_id]) }}">Details</a></td>
                                             </tr>
                                             @php
                                                 $sum_total_po += $data->nilai_po;
@@ -165,7 +165,7 @@
                                                 <td><div class="pull-right">{{ number_format($data->nilai_budget,2, ',', '.') }}</div></td>
                                                 <td><div class="pull-right">{{ number_format($data->nilai_budget_request,2, ',', '.') }}</div></td>
                                                 <td><div class="pull-right">{{ number_format(isset($data->persen_nilai_budget_request)?$data->persen_nilai_budget_request:0,2) }} %</div></td>
-                                                <td><a href="{{ route('finance.report_project.detail', [$data->customer_id, $data->year, $data->site_type_id, $date_filter_decode, $check_ignore_filter]) }}">Details</a></td>
+                                                <td><a href="{{ route('finance.report_project_budget.detail', [$data->customer_id, $data->year, $data->site_type_id]) }}">Details</a></td>
                                             </tr>
                                             @php
                                                 $sum_total_nilai_budget += (isset($data->nilai_budget))? $data->nilai_budget : 0;
