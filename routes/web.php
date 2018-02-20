@@ -51,3 +51,7 @@ Route::get('/marketing', 'MarketingController@index')->name('marketing.index');
 
 Route::get('sales_order/detail/{tahun}','SalesOrderController@show');
 
+
+Route::post('/finance/monitoring_preventive', 'financeController@monitoring_preventive');
+Route::get('/finance/monitoring_preventive', 'financeController@monitoring_preventive')->name('finance.monitoring_preventive');
+Route::get('/finance/monitoring_preventive_detail','financeController@monitoring_preventive_detail')->name('finance.monitoring_preventive_detail');

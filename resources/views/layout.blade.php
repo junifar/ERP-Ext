@@ -143,6 +143,8 @@
                                 </li>
                                 <li><a href="{!! route('finance.report_budget_dept'); !!}"><i class="fa fa-th-list"></i> Monitoring - Dept Budget</a></li>
                                 </li>
+                                <li><a href="{!! route('finance.monitoring_preventive'); !!}"><i class="fa fa-th-large"></i> Monitoring - Preventive Budget</a></li>
+                                </li>
                             </ul>
                         </li>
                         <li class="treeview">
@@ -177,7 +179,7 @@
                 <div class="pull-right hidden-xs">
                     <b>Version</b> 2.3.12
                 </div>
-                <strong>Copyright &copy; 2014-2016 <a href="http://almsaeedstudio.com">Almsaeed Studio</a>.</strong> All rights
+                <strong>Copyright &copy; @php echo date('Y') @endphp <a href="#">Prasetia Dwidharma PT</a>.</strong> All rights
                 reserved.
             </footer>
 

@@ -777,6 +777,37 @@ class FinanceController extends Controller
             'budget_plan_line_departments'));
     }
 
+    public function monitoring_preventive(){
+        $years      = $this->_get_ten_years();
+        
+
+       
+
+        $customer_lists = DB::table('res_partner')
+        ->select(
+            'res_partner.id',
+            'res_partner.name'
+            )
+            ->pluck('name', 'id');
+        // return $customer_lists;
+
+        $project_area = DB::table('project_area')
+        ->select(
+                'project_area.id',
+                'project_area.name'
+                )
+                ->pluck('name', 'id');
+
+       
+        return view('finance.monitoring_preventive',compact('years','customer_lists','project_area'));
+    }
+
+    public function monitoring_preventive_detail(Request $request){
+
+        
+        return view('finance.monitoring_preventive_detail');
+    }
+
     private function _reportBudgetDeptDetailGetDeptName($datas, $budget_plan_request){
         $value = null;
         foreach ($datas as $data){
@@ -1077,6 +1108,8 @@ class FinanceController extends Controller
         $retVal = explode("/", $value);
         return $retVal[2] . "-" . $retVal[0] . "-" . $retVal[1];
     }
+
+
 
     /**
      * @param $datas
