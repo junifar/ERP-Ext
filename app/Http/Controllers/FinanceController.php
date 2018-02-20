@@ -39,7 +39,7 @@ class FinanceController extends Controller
                 'project_site.name as site_name',
                 'project_area.name as area_name',
                 'res_partner.name as customer_name',
-                'project_project.site_type_id as project_type',
+                'project_site_type.name as project_type',
                 'budget_plan.estimate_po',
                 'budget_plan.id as budget_id',
                 'project_project.id as project_id',
@@ -51,6 +51,7 @@ class FinanceController extends Controller
             ->leftJoin('project_site', 'project_project.site_id', '=', 'project_site.id')
             ->leftJoin('res_partner', 'res_partner.id', '=', 'project_site.customer_id')
             ->leftJoin('project_area' , 'project_area.id', '=', 'project_project.area_id')
+            ->leftJoin('project_site_type', 'project_project.site_type_id', '=', 'project_site_type.id')
             ->leftJoin('budget_plan_line', 'budget_plan.id', '=', 'budget_plan_line.budget_id')
             ->where('budget_plan.type', '=', 'project')
             ->whereRaw(DB::raw('EXTRACT(YEAR from budget_plan.periode_start) = ' . $year))
@@ -63,7 +64,7 @@ class FinanceController extends Controller
                 'project_site.name',
                 'project_area.name',
                 'res_partner.name',
-                'project_project.site_type_id',
+                'project_site_type.name',
                 'budget_plan.estimate_po',
                 'budget_plan.id',
                 'project_project.id',

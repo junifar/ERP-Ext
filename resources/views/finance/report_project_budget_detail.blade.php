@@ -64,7 +64,7 @@
                                     <td>{{ ++$page_num }}</td>
                                     <td>{{ $data->site_name }}</td>
                                     <td>{{ $data->project_start }}</td>
-                                    <td>{{ $data->project_id }}</td>
+                                    <td>{{ $data->prasetia_project_id }}</td>
                                     <td>{{ $data->customer_name }}</td>
                                     <td>{{ $data->project_type }}</td>
                                     <td>{{ $data->area_name }}</td>
