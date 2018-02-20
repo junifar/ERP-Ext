@@ -125,10 +125,10 @@
                                 </li>
                                 <li><a href="{!! route('site.report.budget'); !!}"><i class="fa fa-th-large"></i> Sales Order From Budget</a></li>
                                 </li>
-                                <li><a href="{!! route('finance.report_project'); !!}"><i class="fa fa-th-large"></i> Finance - Monitoring Project</a></li>
-                                </li>
-                                <li><a href="{!! route('finance.report_budget_dept'); !!}"><i class="fa fa-th-large"></i> Finance - Monitoring Dept</a></li>
-                                </li>
+                                {{--<li><a href="{!! route('finance.report_project'); !!}"><i class="fa fa-th-large"></i> Finance - Monitoring Project</a></li>--}}
+                                {{--</li>--}}
+                                {{--<li><a href="{!! route('finance.report_budget_dept'); !!}"><i class="fa fa-th-large"></i> Finance - Monitoring Dept</a></li>--}}
+                                {{--</li>--}}
                             </ul>
                         </li>
                         <li class="treeview">
@@ -139,7 +139,9 @@
                                 </span>
                             </a>
                             <ul class="treeview-menu">
-                                <li><a href="{!! route('finance.report_project_budget'); !!}"><i class="fa fa-th-list"></i> Finance - Project Budget</a></li>
+                                <li><a href="{!! route('finance.report_project_budget'); !!}"><i class="fa fa-th-list"></i> Monitoring - Project Budget</a></li>
+                                </li>
+                                <li><a href="{!! route('finance.report_budget_dept'); !!}"><i class="fa fa-th-list"></i> Monitoring - Dept Budget</a></li>
                                 </li>
                             </ul>
                         </li>
