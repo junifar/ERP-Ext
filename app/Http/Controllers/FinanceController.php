@@ -857,17 +857,39 @@ class FinanceController extends Controller
                             ->whereIn('budget_plan.project_id', $project_ids)
                             ->get();
 
+                // $sale_order_datas = DB::table('sale_order_line')
+                // ->select(
+                //     'sale_order.partner_id as customer_id',
+                //     DB::raw('SUM(account_invoice_line.price_subtotal) as total_nilai_penagihan')
+                // )
+                // ->leftJoin('sale_order', 'sale_order_line.order_id', '=', 'sale_order.id')
+                // ->leftJoin('res_partner', 'sale_order.partner_id', '=', 'res_partner.id')
+                // ->leftJoin('project_project', 'sale_order_line.project_id', '=', 'project_project.id')
+                // ->leftJoin('account_invoice_line', 'sale_order_line.project_id', '=', 'account_invoice_line.project_id')
+                // ->leftJoin('account_invoice', 'account_invoice.id', '=', 'account_invoice_line.invoice_id')
+                // ->whereRaw(DB::raw('EXTRACT(YEAR from sale_order.date_order) = '.$request->input('year_filter')))
+                // ->where('project_site.area_id', '=', $request->input('project_area'))
+                // ->where('project_site.customer_id', '=', $request->input('res_partner'))
+                // ->where('account_invoice.type', '=', 'out_invoice')
+                // ->whereIn('account_invoice.state', ['open', 'received', 'paid', 'confirmed'])
+                // ->groupBy(
+                //     'sale_order.partner_id'
+                // )
+                // ->get();           
+
                 foreach ($preventive_data as $data) {
                     $nomor_po = null;
                     $nilai_po = 0;
                     foreach ($sale_order_list as $check) {
                         if($data->project_id == $check->project_id){
-                            $nomor_po = $check->client_order_ref;
-                            $nilai_po = $check->nilai_po;
+                            $nomor_po        = $check->client_order_ref;
+                            $nilai_po        = $check->nilai_po;
+                            
                         }
                     }
                     $data->nomor_po = $nomor_po;
                     $data->nilai_po = $nilai_po;
+                    
 
                     $nilai_realisasi = 0;
                     foreach ($budget_used_request_data as $check) {
@@ -875,7 +897,7 @@ class FinanceController extends Controller
                             $nilai_realisasi = $check->nilai_realisasi;
                         }
                     }
-                    $data->nilai_realisasi = $nilai_realisasi;
+                    $data->nilai_realisasi = 0-$nilai_realisasi;
                 }
 
             }
