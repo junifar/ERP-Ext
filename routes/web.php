@@ -29,12 +29,13 @@ Route::get('/dashboard/data', 'DashboardController@data')->name('dashboard.data'
 Route::get('/project/paket_project', 'ProjectController@project_batch')->name('project.project_batch');
 Route::get('/project/paket_project_detail/{packet_id}/{customer_id}', 'ProjectController@project_batch_detail')->name('project.project_batch_detail');
 
-Route::get('/', 'BudgetController@report')->name('site.report.budget');
+//Route::get('/', 'BudgetController@report')->name('site.report.budget');
 Route::get('/financial_report/budget', 'BudgetController@report')->name('site.report.budget');
 Route::get('/financial_report/budget/data', 'BudgetController@reportdata')->name('site.report.budget.data');
 Route::get('/financial_report/budget/detail/{id}','BudgetController@reportdetail');
 Route::get('/financial_report/budget/detail_analyze/{id}','BudgetController@detail_analyze')->name('site.report.analyze');
 
+Route::get('/', 'FinanceController@reportprojectbudget')->name('finance.report_project_budget');
 Route::get('/finance/report_project', 'FinanceController@reportproject')->name('finance.report_project');
 Route::post('/finance/report_project', 'FinanceController@reportproject')->name('finance.report_project');
 Route::get('/finance/report_project_detail/{customer_id}/{year}/{site_type_id}/{date_filter}/{check_ignore_filter}', 'FinanceController@reportprojectdetail')->name('finance.report_project.detail');
