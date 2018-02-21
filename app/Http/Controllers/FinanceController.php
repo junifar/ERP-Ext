@@ -781,20 +781,31 @@ class FinanceController extends Controller
     public function monitoring_preventive(Request $request){
         $years      = $this->_get_ten_years();
 
-        $customer_lists = DB::table('res_partner')
-            ->select(
-            'res_partner.id',
-            'res_partner.name'
-            )
-            ->where('id', '=', '1180')
-            ->pluck('name', 'id');        
+        $customer_lists = DB::table('budget_plan')
+                ->select(
+                    'budget_plan.customer_id',
+                    'res_partner.name'
+                )
+            ->leftjoin('res_partner','res_partner.id','=','budget_plan.customer_id')
+            ->whereNotNull('budget_plan.customer_id')
+            ->distinct()
+            ->pluck('name', 'customer_id');      
+             
 
-        $project_area = DB::table('project_area')
+        $project_area = DB::table('budget_plan')
                         ->select(
-                                'project_area.id',
-                                'project_area.name'
-                                )
-                ->pluck('name', 'id');
+                             'project_site.area_id',
+                             'project_area.name'
+                        )
+                        ->leftjoin('project_project','project_project.id','=','budget_plan.project_id')
+                        ->leftjoin('project_site','project_project.site_id','=','project_site.id')
+                        ->leftjoin('project_area','project_site.area_id','=','project_area.id')
+                        ->whereNotNull('project_site.area_id')
+                        ->orderBy('project_area.name','ASC')
+                        ->distinct()    
+                        ->pluck('name', 'area_id');
+
+        $preventive_data = null;
         if($request->has('year_filter')){
             
             $preventive_data = DB::table('budget_plan')
@@ -826,7 +837,7 @@ class FinanceController extends Controller
                 $sale_order_list = DB::table('sale_order')
                             ->select(
                                 'sale_order_line.project_id',
-                                'sale_order.client_order_ref',
+                                'sale_order.client_order_ref as nomor_po',
                                 'sale_order.amount_total as nilai_po'
                             )
                             ->leftJoin('sale_order_line', 'sale_order_line.order_id', '=', 'sale_order.id')
@@ -866,9 +877,11 @@ class FinanceController extends Controller
                     }
                     $data->nilai_realisasi = $nilai_realisasi;
                 }
+
             }
-        }       
-       
+            //return $preventive_data;       
+        }
+        
         return view('finance.monitoring_preventive',compact('years','customer_lists','project_area', 'preventive_data'));
     }
 
