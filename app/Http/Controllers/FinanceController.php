@@ -857,25 +857,20 @@ class FinanceController extends Controller
                             ->whereIn('budget_plan.project_id', $project_ids)
                             ->get();
 
-                // $sale_order_datas = DB::table('sale_order_line')
-                // ->select(
-                //     'sale_order.partner_id as customer_id',
-                //     DB::raw('SUM(account_invoice_line.price_subtotal) as total_nilai_penagihan')
-                // )
-                // ->leftJoin('sale_order', 'sale_order_line.order_id', '=', 'sale_order.id')
-                // ->leftJoin('res_partner', 'sale_order.partner_id', '=', 'res_partner.id')
-                // ->leftJoin('project_project', 'sale_order_line.project_id', '=', 'project_project.id')
-                // ->leftJoin('account_invoice_line', 'sale_order_line.project_id', '=', 'account_invoice_line.project_id')
-                // ->leftJoin('account_invoice', 'account_invoice.id', '=', 'account_invoice_line.invoice_id')
-                // ->whereRaw(DB::raw('EXTRACT(YEAR from sale_order.date_order) = '.$request->input('year_filter')))
-                // ->where('project_site.area_id', '=', $request->input('project_area'))
-                // ->where('project_site.customer_id', '=', $request->input('res_partner'))
-                // ->where('account_invoice.type', '=', 'out_invoice')
-                // ->whereIn('account_invoice.state', ['open', 'received', 'paid', 'confirmed'])
-                // ->groupBy(
-                //     'sale_order.partner_id'
-                // )
-                // ->get();           
+                $account_invoice_data = DB::table('account_invoice')
+                            ->select(
+                                    'sale_order_line.project_id',
+                                    'account_invoice.name',
+                                    DB::raw('SUM(account_invoice.amount_total) as nilai_penagihan')
+                                )
+                            ->leftjoin('sale_order_line_invoice_rel','sale_order_line_invoice_rel.invoice_id','=','account_invoice.id')
+                            ->leftjoin('sale_order_line','sale_order_line.id','=','sale_order_line_invoice_rel.order_line_id')
+                            ->whereIn('sale_order_line.project_id',$project_ids)
+                            ->whereIn('account_invoice.state',['open', 'received', 'paid', 'confirmed'])
+                            ->groupBy('sale_order_line.project_id','account_invoice.name')
+                            ->get();
+
+                          
 
                 foreach ($preventive_data as $data) {
                     $nomor_po = null;
@@ -898,13 +893,33 @@ class FinanceController extends Controller
                         }
                     }
                     $data->nilai_realisasi = 0-$nilai_realisasi;
+
+                    $invoices =  null;
+                    foreach ($account_invoice_data as $check) {
+                        if($data->project_id == $check->project_id){
+                            $invoice = new stdClass();
+                            $invoice->nomor_invoice = $check->name;
+                            $invoice->nilai_penagihan = $check->nilai_penagihan;
+                            $invoices[] = $invoice;
+
+                        }
+                    }
+
+                    if ($invoices == null) {
+                        $invoice = new stdClass();
+                        $invoice->nomor_invoice = null;
+                        $invoice->nilai_penagihan = 0;
+                        $invoices[] = $invoice;
+                    }
+                    $data->invoices =  $invoices;
                 }
 
             }
-            //return $preventive_data;       
+            // return $preventive_data;   
+                  
         }
         
-        return view('finance.monitoring_preventive',compact('years','customer_lists','project_area', 'preventive_data'));
+        return view('finance.monitoring_preventive',compact('years','customer_lists','project_area', 'preventive_data','account_invoice_data'));
     }
 
     public function monitoring_preventive_detail(Request $request){

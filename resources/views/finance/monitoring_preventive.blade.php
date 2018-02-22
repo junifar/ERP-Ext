@@ -89,7 +89,9 @@
         								<th>Nomor Budget</th>
                                         <th>Nomor PO</th>
         								<th>Nilai PO</th>
-                                        <th>Nilai Penagihan </th>
+                                        <th>Nomor Invoice</th>
+                                        <th>Nilai Penagihan</th>
+                                        <th>Total Nilai Penagihan </th>
         								<th>% Penagihan</th>
         								<th>Nilai Budget</th>
         								<th>Nilai Realisasi</th>
@@ -100,7 +102,7 @@
                                     </thead>
                                   <tbody>   
                                     @php
-                                        $nilai_penagihan = 500000;
+                                        $nilai_penagihan = 0;
                                          $nilai_poAsli = (isset($data->nilai_po)) ? $data->nilai_po : 0;
                                     @endphp
                                 @foreach($preventive_data as $data)
@@ -108,6 +110,19 @@
                                         <td>{{ $data->name }}</td>
                                         <td>{{ $data->nomor_po }}</td>
         								<td>{{ number_format($nilai_poAsli,2, ',', '.') }}</td>
+                                        <td>
+                                            @foreach($data->invoices as $invoice )
+                                                <div class="col-md-12">{{ $invoice->nomor_invoice }}</div>
+                                            @endforeach
+                                        </td>
+                                        <td>
+                                            @foreach($data->invoices as $invoice )
+                                                <div class="col-md-12">{{ $invoice->nilai_penagihan }}</div>
+                                                @php 
+                                                    $nilai_penagihan += $invoice->nilai_penagihan;
+                                                @endphp
+                                            @endforeach
+                                        </td>
         								<td>{{ number_format($nilai_penagihan,2,',','.') }}</td>
         								<td>{{ number_format(($nilai_poAsli >0 ) ? ((float)$nilai_penagihan / (float) $nilai_po)*100 : 0,2) }} %</td>
         								<td>{{ number_format($data->nilai_budget,2,',','.') }}</td>
@@ -117,19 +132,7 @@
         								<td><a href="{!! route('finance.monitoring_preventive_detail'); !!}">Show</a></td>
                                   </tr>
                                 @endforeach  
-                                     <tr>
-                                            <th>Sub Total</th>
-                                            <th><div class="pull-right">&nbsp;</div></th>
-                                            <th><div class="pull-right">&nbsp;</div></th>
-                                            <th><div class="pull-right">&nbsp; </div></th>
-                                            <th><div class="pull-right">&nbsp; %</div></th>
-                                            <th><div class="pull-right">&nbsp; </div></th>
-                                            <th><div class="pull-right">&nbsp; </div></th>
-                                            <th><div class="pull-right">&nbsp; </div></th>
-                                            <th><div class="pull-right">&nbsp; </div></th>
-                                            <td></td>
-                                    </tr>                
-                                                       
+                                                   
                                   </tbody>
                             </table>	
                          </div> 
