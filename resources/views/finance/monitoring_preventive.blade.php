@@ -117,6 +117,18 @@
         								<td><a href="{!! route('finance.monitoring_preventive_detail'); !!}">Show</a></td>
                                   </tr>
                                 @endforeach  
+                                     <tr>
+                                            <th>Sub Total</th>
+                                            <th><div class="pull-right">&nbsp;</div></th>
+                                            <th><div class="pull-right">&nbsp;</div></th>
+                                            <th><div class="pull-right">&nbsp; </div></th>
+                                            <th><div class="pull-right">&nbsp; %</div></th>
+                                            <th><div class="pull-right">&nbsp; </div></th>
+                                            <th><div class="pull-right">&nbsp; </div></th>
+                                            <th><div class="pull-right">&nbsp; </div></th>
+                                            <th><div class="pull-right">&nbsp; </div></th>
+                                            <td></td>
+                                    </tr>                
                                                        
                                   </tbody>
                             </table>	
