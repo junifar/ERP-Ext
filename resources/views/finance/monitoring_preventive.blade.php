@@ -83,11 +83,11 @@
                                 <table class="table table-bordered table-striped table-hover">
                                     <thead>
                                         <tr>
-                                            <th colspan="10" class="text-center"><h3>Preventive Info</h3></th>
+                                            <th colspan="12" class="text-center"><h3>Preventive Info</h3></th>
                                         </tr>
                                        <tr>
-        								<th>Nomor Budget</th>
                                         <th>Nomor PO</th>
+        								<th>Nomor Budget</th>
         								<th>Nilai PO</th>
                                         <th>Nomor Invoice</th>
                                         <th>Nilai Penagihan</th>
@@ -102,13 +102,13 @@
                                     </thead>
                                   <tbody>   
                                     @php
-                                        $nilai_penagihan = 0;
+                                         $nilai_penagihan = 0;
                                          $nilai_poAsli = (isset($data->nilai_po)) ? $data->nilai_po : 0;
                                     @endphp
                                 @foreach($preventive_data as $data)
                                   <tr>
-                                        <td>{{ $data->name }}</td>
                                         <td>{{ $data->nomor_po }}</td>
+                                        <td>{{ $data->name }}</td>
         								<td>{{ number_format($nilai_poAsli,2, ',', '.') }}</td>
                                         <td>
                                             @foreach($data->invoices as $invoice )
@@ -129,7 +129,7 @@
         								<td>{{ number_format($data->nilai_realisasi,2,',','.') }}</td>
         								<td>{{ number_format(($data->nilai_budget >0 ) ? ((float)$data->nilai_realisasi / (float) $data->nilai_budget)*100 : 0,2) }}</td>
         								<td>{{ number_format($nilai_poAsli - $data->nilai_realisasi) }}</td>
-        								<td><a href="{!! route('finance.monitoring_preventive_detail'); !!}">Show</a></td>
+        								<td><a href="{!! route('finance.monitoring_preventive_detail',[$data->id]); !!}" class="btn btn-success">Show</a></td>
                                   </tr>
                                 @endforeach  
                                                    

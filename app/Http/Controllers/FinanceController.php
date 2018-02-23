@@ -767,8 +767,6 @@ class FinanceController extends Controller
             ->whereIn('budget_used_request.budget_item_id', $budget_plan_ids)
             ->get();
 
-//        return $budget_plan_request;
-//        return $budget_plan_ids;
 
         $budget_plan_line_departments = $this->_reportBudgetDeptDetailGetDeptName($budget_plan_line_datas, $budget_plan_request);
 
@@ -812,8 +810,10 @@ class FinanceController extends Controller
                             ->select(
                                 'budget_plan.id',
                                 'budget_plan.project_id',
-                                'budget_plan.name',                                
-                                DB::raw('SUM(budget_plan_line.amount) as nilai_budget')
+                                'budget_plan.name',
+
+                                DB::raw('SUM(budget_plan_line.amount) as nilai_budget'),
+                                DB::raw('EXTRACT(YEAR from budget_plan.date) as year') 
                             )
                             ->leftJoin('project_project', 'project_project.id', '=', 'budget_plan.project_id')
                             ->leftJoin('project_site', 'project_project.site_id', '=', 'project_site.id')
@@ -922,11 +922,38 @@ class FinanceController extends Controller
         return view('finance.monitoring_preventive',compact('years','customer_lists','project_area', 'preventive_data','account_invoice_data'));
     }
 
-    public function monitoring_preventive_detail(Request $request){
 
-        
-        return view('finance.monitoring_preventive_detail');
+    public function monitoring_preventive_detail($id){           
+            // $ids = DB::table('budget_plan')->where('id',$id)->first();
+            $budget_plan = DB::table('budget_plan')
+                            ->select(
+                                 'budget_plan.id',
+                                 'budget_plan.name', 
+                                 'budget_plan.date',   
+                                 'budget_plan.estimate_po',
+                                 'project_area.name as area_name',
+                                 'res_partner.name as customer_name',                            
+                                 DB::raw('EXTRACT(YEAR from budget_plan.date) as year')
+                            )
+                            ->leftjoin('project_project','project_project.id','=','budget_plan.project_id')
+                            ->leftjoin('project_site','project_project.site_id','=','project_site.id')
+                            ->leftjoin('project_area','project_site.area_id','=','project_area.id')
+                            ->leftjoin('res_partner','res_partner.id','=','budget_plan.customer_id')
+                            ->where('budget_plan.id','=',$id)
+                            ->get();
+
+        $project_ids = null;
+            foreach ($budget_plan as $data) {
+                $project_ids[$data->id] = $data->id;
+            }                   
+        //return $budget_plan;                   
+        return view('finance.monitoring_preventive_detail',compact('id','budget_plan','project_ids'));
     }
+
+ 
+
+   
+    
 
     private function _reportBudgetDeptDetailGetDeptName($datas, $budget_plan_request){
         $value = null;
