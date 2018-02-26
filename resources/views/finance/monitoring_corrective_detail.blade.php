@@ -21,8 +21,9 @@
             border: 1px solid black !important;
         }
         .text{
-             margin: auto;
-             padding: 10px;
+             margin: 0px;
+             height: 10em;
+             align-items: middle;
         }
     </style>
 @endpush
