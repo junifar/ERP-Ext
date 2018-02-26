@@ -144,6 +144,10 @@
                                 </li>
                                 <li><a href="{!! route('finance.report_budget_dept'); !!}"><i class="fa fa-th-list"></i> Monitoring - Dept Budget</a></li>
                                 </li>
+                                 <li><a href="{!! route('finance.monitoring_preventive'); !!}"><i class="fa fa-th-list"></i> Monitoring -Preventive Budget</a></li>
+                                </li>
+                                <li><a href="{!! route('finance.monitoring_corrective'); !!}"><i class="fa fa-th-list"></i> Monitoring - Corrective Budget</a></li>
+                                </li>
                             </ul>
                         </li>
                         <li class="treeview">

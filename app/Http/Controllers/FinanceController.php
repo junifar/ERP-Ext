@@ -777,6 +777,172 @@ class FinanceController extends Controller
             'budget_plan_line_departments'));
     }
 
+    public function monitoring_preventive(Request $request){
+        $years      = $this->_get_ten_years();
+        $customer_lists = DB::table('budget_plan')
+                ->select(
+                    'budget_plan.customer_id',
+                    'res_partner.name'
+                )
+            ->leftjoin('res_partner','res_partner.id','=','budget_plan.customer_id')
+            ->whereNotNull('budget_plan.customer_id')
+            ->distinct()
+            ->pluck('name', 'customer_id');      
+             
+        $project_area = DB::table('budget_plan')
+                        ->select(
+                             'project_site.area_id',
+                             'project_area.name'
+                        )
+                        ->leftjoin('project_project','project_project.id','=','budget_plan.project_id')
+                        ->leftjoin('project_site','project_project.site_id','=','project_site.id')
+                        ->leftjoin('project_area','project_site.area_id','=','project_area.id')
+                        ->whereNotNull('project_site.area_id')
+                        ->orderBy('project_area.name','ASC')
+                        ->distinct()    
+                        ->pluck('name', 'area_id');
+        $preventive_data = null;
+        if($request->has('year_filter')){
+            
+            $preventive_data = DB::table('budget_plan')
+                            ->select(
+                                'budget_plan.id',
+                                'budget_plan.project_id',
+                                'budget_plan.name',
+                                DB::raw('SUM(budget_plan_line.amount) as nilai_budget'),
+                                DB::raw('EXTRACT(YEAR from budget_plan.date) as year') 
+                            )
+                            ->leftJoin('project_project', 'project_project.id', '=', 'budget_plan.project_id')
+                            ->leftJoin('project_site', 'project_project.site_id', '=', 'project_site.id')
+                            ->leftJoin('budget_plan_line', 'budget_plan.id', '=', 'budget_plan_line.budget_id')                          
+                            ->where('budget_plan.budget_type_maintenance', '=', 'preventive')
+                            ->whereRaw('EXTRACT(YEAR from budget_plan.periode_start) = '.$request->input('year_filter'))
+                            ->where('project_site.area_id', '=', $request->input('project_area'))
+                            ->where('project_site.customer_id', '=', $request->input('res_partner'))
+                            ->groupBy(
+                                'budget_plan.id',
+                                'budget_plan.name'
+                            )
+                            ->get();
+            $project_ids = null;
+            foreach ($preventive_data as $data) {
+                $project_ids[$data->project_id] = $data->project_id;
+            }
+            if($project_ids != null){
+                $sale_order_list = DB::table('sale_order')
+                            ->select(
+                                'sale_order_line.project_id',
+                                'sale_order.client_order_ref as nomor_po',
+                                'sale_order.amount_total as nilai_po'
+                            )
+                            ->leftJoin('sale_order_line', 'sale_order_line.order_id', '=', 'sale_order.id')
+                            ->whereIn('sale_order_line.project_id', $project_ids)
+                            ->get();
+                $budget_used_request_data = DB::table('budget_plan')
+                            ->select(
+                                'budget_plan.project_id',                             
+                                DB::raw('SUM(budget_used_request.request) as nilai_realisasi')
+                            )
+                            ->leftJoin('budget_plan_line', 'budget_plan.id', '=', 'budget_plan_line.budget_id')
+                            ->leftjoin('budget_used_request', 'budget_used_request.budget_item_id', '=', 'budget_plan_line.id')
+                            ->groupBy(
+                                'budget_plan.project_id'
+                            )
+                            ->whereIn('budget_plan.project_id', $project_ids)
+                            ->get();
+                $account_invoice_data = DB::table('account_invoice')
+                            ->select(
+                                    'sale_order_line.project_id',
+                                    'account_invoice.name',
+                                    DB::raw('SUM(account_invoice.amount_total) as nilai_penagihan')
+                                )
+                            ->leftjoin('sale_order_line_invoice_rel','sale_order_line_invoice_rel.invoice_id','=','account_invoice.id')
+                            ->leftjoin('sale_order_line','sale_order_line.id','=','sale_order_line_invoice_rel.order_line_id')
+                            ->whereIn('sale_order_line.project_id',$project_ids)
+                            ->whereIn('account_invoice.state',['open', 'received', 'paid', 'confirmed'])
+                            ->groupBy('sale_order_line.project_id','account_invoice.name')
+                            ->get();
+                          
+                foreach ($preventive_data as $data) {
+                    $nomor_po = null;
+                    $nilai_po = 0;
+                    foreach ($sale_order_list as $check) {
+                        if($data->project_id == $check->project_id){
+                            $nomor_po        = $check->client_order_ref;
+                            $nilai_po        = $check->nilai_po;
+                            
+                        }
+                    }
+                    $data->nomor_po = $nomor_po;
+                    $data->nilai_po = $nilai_po;
+                    
+                    $nilai_realisasi = 0;
+                    foreach ($budget_used_request_data as $check) {
+                        if($data->project_id == $check->project_id){
+                            $nilai_realisasi = $check->nilai_realisasi;
+                        }
+                    }
+                    $data->nilai_realisasi = 0-$nilai_realisasi;
+                    $invoices =  null;
+                    foreach ($account_invoice_data as $check) {
+                        if($data->project_id == $check->project_id){
+                            $invoice = new stdClass();
+                            $invoice->nomor_invoice = $check->name;
+                            $invoice->nilai_penagihan = $check->nilai_penagihan;
+                            $invoices[] = $invoice;
+                        }
+                    }
+                    if ($invoices == null) {
+                        $invoice = new stdClass();
+                        $invoice->nomor_invoice = null;
+                        $invoice->nilai_penagihan = 0;
+                        $invoices[] = $invoice;
+                    }
+                    $data->invoices =  $invoices;
+                }
+            }
+            // return $preventive_data;   
+                  
+        }
+        
+        return view('finance.monitoring_preventive',compact('years','customer_lists','project_area', 'preventive_data','account_invoice_data'));
+    }
+    public function monitoring_preventive_detail($id){           
+            // $ids = DB::table('budget_plan')->where('id',$id)->first();
+            $budget_plan = DB::table('budget_plan')
+                            ->select(
+                                 'budget_plan.id',
+                                 'budget_plan.name', 
+                                 'budget_plan.date',   
+                                 'budget_plan.estimate_po',
+                                 'project_area.name as area_name',
+                                 'res_partner.name as customer_name',                            
+                                 DB::raw('EXTRACT(YEAR from budget_plan.date) as year')
+                            )
+                            ->leftjoin('project_project','project_project.id','=','budget_plan.project_id')
+                            ->leftjoin('project_site','project_project.site_id','=','project_site.id')
+                            ->leftjoin('project_area','project_site.area_id','=','project_area.id')
+                            ->leftjoin('res_partner','res_partner.id','=','budget_plan.customer_id')
+                            ->where('budget_plan.id','=',$id)
+                            ->get();
+        $project_ids = null;
+            foreach ($budget_plan as $data) {
+                $project_ids[$data->id] = $data->id;
+            }                   
+        //return $budget_plan;                   
+        return view('finance.monitoring_preventive_detail',compact('id','budget_plan','project_ids'));
+    }
+
+    public function monitoring_corrective(){
+        $years      = $this->_get_ten_years();
+        return view('finance.monitoring_corrective',compact('years'));
+    }
+
+    public function monitoring_corrective_detail(){
+
+        return view('finance.monitoring_corrective_detail');
+    }
+
     private function _reportBudgetDeptDetailGetDeptName($datas, $budget_plan_request){
         $value = null;
         foreach ($datas as $data){
