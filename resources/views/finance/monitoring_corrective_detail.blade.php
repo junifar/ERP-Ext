@@ -33,7 +33,7 @@
             <div class="box box-solid">
                 <div class="box-body">
                     <h4 style="background-color:#f7f7f7; font-size: 18px; text-align: center; padding: 7px 10px; margin-top: 0;">
-                        Monitoring Maintanance Corrective Detail
+                        Monitoring Maintanance Paid Detail
                     </h4>
                     <div class="row">
                         <div class="col-md-6">
@@ -62,12 +62,12 @@
                         <table class="table table-bordered table-striped table-hover">
                                     <thead>
                                         <tr>
-                                            <th>No</th>
                                             <th colspan="2">PIC</th>
                                             <th>Pembayaran</th>
+                                            <th>Nilai Budget</th>
                                             <th>Nilai MI(Memo Internal)</th>
                                             <th>Tanggal</th>
-                                            <th>NO CA / GPR</th>
+                                            <th>NO CA / GPR / RMB</th>
                                             <th>Status</th>
                                             <th>Nominal</th>
                                             <th>Site</th>
@@ -75,82 +75,82 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td rowspan="3" class="text">1</td>
-                                            <td colspan="2">Junifat @</td> 
-                                            <td colspan="7">&nbsp;</td> 
+                                            <td colspan="10""><h5><b>Junifat @</b></h5></td> 
                                         </tr>
                                         <tr>
                                             <td colspan="2">1</td>
-                                            <td>24</td>
+                                            <td>CA Imbas Petir</td>
                                             <td>0,00</td>
                                             <td>0,00</td>
-                                            <td>0,00</td>
-                                            <td>ok</td>
-                                            <td>1000.000</td>
-                                            <td>Sulawesi</td> 
+                                            <td>1/9/2015</td>
+                                            <td>1500627</td>
+                                            <td>Paid</td>
+                                            <td>12.000.000</td> 
+                                            <td>Sulawesi</td>
                                         </tr>
-                                       <tr>
+                                        <tr>
                                             <td colspan="2">2</td>
-                                            <td>24</td>
+                                            <td>CA Imbas Petir</td>
                                             <td>0,00</td>
                                             <td>0,00</td>
                                             <td>0,00</td>
-                                            <td>ok</td>
-                                            <td>1000.000</td>
-                                            <td>Sulawesi</td> 
-                                       </tr>
+                                            <td>1500627</td>
+                                            <td>Paid</td>
+                                            <td>12.000.000</td> 
+                                            <td>Sulawesi</td>
+                                        </tr>
 
-                                          <tr>
-                                            <td rowspan="3" class="text">2</td>
-                                            <td colspan="2">Wendi</td> 
-                                            <td colspan="7">&nbsp;</td> 
+                                         <tr>
+                                            <td colspan="10""><h5><b>Wendi @</b></h5></td> 
                                         </tr>
                                         <tr>
                                             <td colspan="2">1</td>
-                                            <td>24</td>
+                                            <td>CA Imbas Petir</td>
                                             <td>0,00</td>
                                             <td>0,00</td>
                                             <td>0,00</td>
-                                            <td>ok</td>
-                                            <td>1000.000</td>
-                                            <td>Sulawesi</td> 
+                                            <td>1500627</td>
+                                            <td>Paid</td>
+                                            <td>12.000.000</td> 
+                                            <td>Sulawesi</td>
                                         </tr>
-                                       <tr>
+                                        <tr>
                                             <td colspan="2">2</td>
-                                            <td>24</td>
+                                            <td>CA Imbas Petir</td>
                                             <td>0,00</td>
                                             <td>0,00</td>
                                             <td>0,00</td>
-                                            <td>ok</td>
-                                            <td>1000.000</td>
-                                            <td>Sulawesi</td> 
-                                       </tr>
-
-                                          <tr>
-                                            <td rowspan="3" class="text">3</td>
-                                            <td colspan="2">Andro</td> 
-                                            <td colspan="7">&nbsp;</td> 
+                                            <td>1500627</td>
+                                            <td>Paid</td>
+                                            <td>12.000.000</td> 
+                                            <td>Sulawesi</td>
+                                        </tr>
+                                        
+                                         <tr>
+                                            <td colspan="10""><h5><b>Andro @</b></h5></td> 
                                         </tr>
                                         <tr>
                                             <td colspan="2">1</td>
-                                            <td>24</td>
+                                            <td>CA Imbas Petir</td>
                                             <td>0,00</td>
                                             <td>0,00</td>
                                             <td>0,00</td>
-                                            <td>ok</td>
-                                            <td>1000.000</td>
-                                            <td>Sulawesi</td> 
+                                            <td>1500627</td>
+                                            <td>Paid</td>
+                                            <td>12.000.000</td> 
+                                            <td>Sulawesi</td>
                                         </tr>
-                                       <tr>
+                                        <tr>
                                             <td colspan="2">2</td>
-                                            <td>24</td>
+                                            <td>CA Imbas Petir</td>
                                             <td>0,00</td>
                                             <td>0,00</td>
                                             <td>0,00</td>
-                                            <td>ok</td>
-                                            <td>1000.000</td>
-                                            <td>Sulawesi</td> 
-                                       </tr>
+                                            <td>1500627</td>
+                                            <td>Paid</td>
+                                            <td>12.000.000</td> 
+                                            <td>Sulawesi</td>
+                                        </tr>  
                                         
                                     </tbody>
                              </table> 
