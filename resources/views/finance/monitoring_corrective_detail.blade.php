@@ -37,16 +37,36 @@
                     </h4>
                     <div class="row">
                         <div class="col-md-6">
-                            <b>Tahun : 2018</b> 
+                            <div class="form-group">
+                               {!! Form::label('Tahun','Tahun', ['class' => 'col-sm-3 form-control-label']) !!}
+                              <div class="col-md-6">
+                                <b>2018</b>
+                            </div>  
+                            </div>
+                        </div>
+                         <div class="col-md-6">
+                            <div class="form-group">
+                               {!! Form::label('Customer','Customer', ['class' => 'col-sm-5 form-control-label']) !!}
+                              <div class="col-md-6">
+                                <b>Infra</b>
+                            </div>  
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <b>Total Nilai PO : 0,00</b>
+                            <div class="form-group">
+                               {!! Form::label('Total Nilai PO','Total Nilai PO', ['class' => 'col-sm-3 form-control-label']) !!}
+                              <div class="col-md-6">
+                                <b>12.000.000</b>
+                            </div>  
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <b>Customer : PT. TOWER BERSAMA</b>
-                        </div>
-                        <div class="col-md-6">
-                            <b>Total Penagihan :  0,00</b>
+                       <div class="col-md-6">
+                            <div class="form-group">
+                               {!! Form::label('Total Nilai Penagihan','Total Nilai Penagihan', ['class' => 'col-sm-5 form-control-label']) !!}
+                              <div class="col-md-7">
+                                <b>12.000.000</b>
+                            </div>  
+                            </div>
                         </div>
                     </div>
                 </div>
