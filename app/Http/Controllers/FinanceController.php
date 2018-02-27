@@ -967,12 +967,10 @@ class FinanceController extends Controller
 						$customer_ids[$data->customer_id] = $data->customer_id;
 					}
 
-
-		
             if($customer_ids != null){
                  $sale_order = DB::table('budget_plan')
                                         ->select(
-                                            'project_project.id',
+                                            'budget_plan.project_id',
                                             // 'sale_order_line.project_id',
                                             // 'sale_order.client_order_ref as nomor_po',
                                             // 'sale_order.amount_total as nilai_po',
@@ -981,8 +979,9 @@ class FinanceController extends Controller
                                         )
                                         ->leftjoin('project_project','budget_plan.project_id','=','project_project.id')
                                         ->leftJoin('sale_order_line', 'sale_order_line.order_id', '=', 'sale_order.id')
+                                        
                                         ->whereRaw('EXTRACT(YEAR from budget_plan.periode_start) = '.$request->input('year_filter'))
-                                        ->whereIn('budget_plan.project_id', $customer_ids)
+                                        ->whereIn('budget_plan.project_id','=', $customer_ids)
                                         ->get();
 
             }
