@@ -928,14 +928,73 @@ class FinanceController extends Controller
         $project_ids = null;
             foreach ($budget_plan as $data) {
                 $project_ids[$data->id] = $data->id;
+            }
+
+            if($project_ids != null){
+
             }                   
         //return $budget_plan;                   
         return view('finance.monitoring_preventive_detail',compact('id','budget_plan','project_ids'));
     }
 
-    public function monitoring_corrective(){
+    public function monitoring_corrective(Request $request){
         $years      = $this->_get_ten_years();
-        return view('finance.monitoring_corrective',compact('years'));
+
+          $corrective_data = null;
+          if ($request->has('year_filter')){
+            $corrective_data = DB::table('budget_plan')
+                             -> select(
+                                        'res_partner.id as customer_id',
+                                        'res_partner.name as customer_name',
+                                        DB::raw('EXTRACT(YEAR from budget_plan.periode_start) as year'),
+                                        DB::raw('count(budget_plan.id) as total_project'),
+                                        DB::raw('count(budget_plan.mi_id) as total_mi ')
+                                )
+                             ->leftjoin('project_project','budget_plan.project_id','=','project_project.id')
+                             ->leftjoin('project_site','budget_plan.project_site_id','=','project_site.id')
+                             ->leftjoin('res_partner','project_site.customer_id','=','res_partner.id')
+                             ->where('budget_plan.budget_type_maintenance', '=', 'corrective')
+							 ->whereRaw('EXTRACT(YEAR from budget_plan.periode_start) = '.$request->input('year_filter'))
+                             ->whereNotNull('project_site.customer_id')
+                             ->groupBy(
+                                    'res_partner.id',
+                                    'res_partner.name',
+                                    DB::raw('EXTRACT(YEAR from budget_plan.periode_start)')
+                             )
+                             ->get(); 
+					$customer_ids = null;
+					foreach($corrective_data as $data) {
+						$customer_ids[$data->customer_id] = $data->customer_id;
+					}
+
+
+		
+            if($customer_ids != null){
+                 $sale_order = DB::table('budget_plan')
+                                        ->select(
+                                            'project_project.id',
+                                            // 'sale_order_line.project_id',
+                                            // 'sale_order.client_order_ref as nomor_po',
+                                            // 'sale_order.amount_total as nilai_po',
+                                            DB::raw('count(budget_plan.amount_total) as total_po '),
+                                            DB::raw('EXTRACT(YEAR from budget_plan.periode_start) as year')
+                                        )
+                                        ->leftjoin('project_project','budget_plan.project_id','=','project_project.id')
+                                        ->leftJoin('sale_order_line', 'sale_order_line.order_id', '=', 'sale_order.id')
+                                        ->whereRaw('EXTRACT(YEAR from budget_plan.periode_start) = '.$request->input('year_filter'))
+                                        ->whereIn('budget_plan.project_id', $customer_ids)
+                                        ->get();
+
+            }
+		
+            						 
+         }
+		 else{
+			 echo '<H4>Tidak Ada Data</H4>';
+		 }
+                                
+         //return $corrective_data;
+        return view('finance.monitoring_corrective',compact('years','corrective_data','customer_ids'));
     }
 
     public function monitoring_corrective_detail(){

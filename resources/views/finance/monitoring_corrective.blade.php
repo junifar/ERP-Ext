@@ -34,8 +34,9 @@
                          <h4 style="background-color:#f7f7f7; font-size: 18px; text-align: center; padding: 7px 10px; margin-top: 0;">
                         Monitoring Maintanance Corrective
                         </h4>
-                        <div class="row">
-                            <div class=" text-center col-md-6">
+                        <div class="text-center row">
+                            <center>
+                            <div class="col-md-6">
                                 <div class="form-group">
                                         {!! Form::label('years_filter','Tahun', ['class' => 'col-sm-3 form-control-label']) !!}
                                     <div class="col-md-9">
@@ -43,13 +44,14 @@
                                     </div>
                                 </div>   
                             </div>
+                            </center>
                         </div>   
                     </div>
                     <div class="box-footer">
                         <button type="submit" class="btn btn-info pull-right">Tampilkan</button>
                     </div>
                 </div>
-
+				@if($corrective_data)
                 <div class="box box-body">
                     <div class="box-body">
                         <div class="header">
@@ -65,34 +67,33 @@
                                             <th>Total Project</th>
                                             <th>Nilai PO</th>
                                             <th>Nilai MI(Memo Internal)</th>
+                                            <th>Total PO</th>
                                             <th>Nilai Penagihan(%)</th>
                                             <th>Tools</th>
                                         </tr>
                                     </thead>
                                     <tbody>
+                                       @php 
+											  $page_num = 0;
+									   @endphp
+										@foreach($corrective_data as $data)
                                         <tr>
-                                            <td>1</td>
-                                            <td>PT. TOWER BERSAMA</td>
-                                            <td>24</td>
+                                            <td>{{ ++$page_num }}</td>
+                                            <td>{{ $data->customer_name }}</td>
+                                            <td>{{ $data->total_project }}</td>
                                             <td>0,00</td>
+                                            <td>{{ $data->total_mi}}</td>
                                             <td>0,00</td>
                                             <td>0,00</td>
                                             <td><a href="{!! route('finance.monitoring_corrective_detail'); !!}" class="btn btn-success">Show</a></td>
                                         </tr>
-                                        <tr>
-                                            <td>2</td>
-                                            <td>PT. BBSC TELECODE</td>
-                                            <td>1</td>
-                                            <td>0,00</td>
-                                            <td>0,00</td>
-                                            <td>0,00</td>
-                                            <td><a href="{!! route('finance.monitoring_corrective_detail'); !!}" class="btn btn-success">Show</a></td>
-                                        </tr>   
+                                        @endforeach
                                     </tbody>
                              </table>   
                         </div>
                     </div>
                 </div>
+			@endif		
             {!! Form::close() !!}   
         </div>
     </div>
