@@ -35,8 +35,8 @@
                         Monitoring Maintanance Corrective
                         </h4>
                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="text-right form-group">
+                            <div class=" text-center col-md-6">
+                                <div class="form-group">
                                         {!! Form::label('years_filter','Tahun', ['class' => 'col-sm-3 form-control-label']) !!}
                                     <div class="col-md-9">
                                         {!! Form::select('year_filter',$years, null,['class' => 'form-control']) !!}   
