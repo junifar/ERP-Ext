@@ -108,30 +108,7 @@
                                 {{--<i class="fa fa-dashboard"></i> <span>Admin Dashboard</span>--}}
                             {{--</a>--}}
                         </li>
-                        {{--Dashboard Menu--}}
-                        {{--<li class="active treeview">--}}
-                            {{--<a href="#">--}}
-                                {{--<i class="fa fa-th-large"></i> <span>Dashboard</span>--}}
-                                {{--<span class="pull-right-container">--}}
-                                {{--<i class="fa fa-angle-left pull-right"></i>--}}
-                                {{--</span>--}}
-                            {{--</a>--}}
-                            {{--<ul class="treeview-menu">--}}
-                                {{--<li><a href="{!! route('dashboard'); !!}"><i class="fa fa-th-large"></i> Sales Order</a></li>--}}
-                                {{--</li>--}}
-                                {{--<li><a href="{!! route('marketing.index'); !!}"><i class="fa fa-th-large"></i> Marketing</a></li>--}}
-                                {{--</li>--}}
-                                {{--<li><a href="{!! route('site.dashboard'); !!}"><i class="fa fa-th-large"></i> Site</a></li>--}}
-                                {{--</li>--}}
-                                {{--<li><a href="{!! route('site.report.budget'); !!}"><i class="fa fa-th-large"></i> Sales Order From Budget</a></li>--}}
-                                {{--</li>--}}
-                                {{--<li><a href="{!! route('finance.report_project'); !!}"><i class="fa fa-th-large"></i> Finance - Monitoring Project</a></li>--}}
-                                {{--</li>--}}
-                                {{--<li><a href="{!! route('finance.report_budget_dept'); !!}"><i class="fa fa-th-large"></i> Finance - Monitoring Dept</a></li>--}}
-                                {{--</li>--}}
-                            {{--</ul>--}}
-                        {{--</li>--}}
-                        {{--End Dashboard Menu--}}
+                       
                         <li class="active treeview">
                             <a href="#">
                                 <i class="fa fa-money"></i> <span>Finance</span>
